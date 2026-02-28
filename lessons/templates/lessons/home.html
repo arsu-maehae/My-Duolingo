@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JP Learn - ลุยเลยขุนแผน!</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* ลูกเล่นขยับกล่องด่านเวลาเอาเมาส์ชี้ */
+        .level-card { transition: 0.3s; cursor: pointer; border-radius: 15px; }
+        .level-card:hover { transform: translateY(-10px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold">🇯🇵 JP Learn</h1>
+            <p class="lead text-muted">เลือกด่านที่ต้องการเรียนได้เลย ขุนแผน!</p>
+        </div>
+
+        <div class="row justify-content-center">
+            {% for level in levels %}
+            <div class="col-md-4 mb-4">
+                <div class="card level-card h-100 shadow-sm border-0">
+                    <div class="card-body text-center d-flex flex-column justify-content-center p-4">
+                        <h2 class="card-title text-primary fw-bold">Lv. {{ level.level_number }}</h2>
+                        <h5 class="card-text text-secondary mb-4">{{ level.title }}</h5>
+                        
+                        <a href="/level/{{ level.level_number }}/" class="btn btn-success btn-lg rounded-pill">
+                            เริ่มเรียนเลย!
+                        </a>
+                        
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <h4 class="text-muted">ยังไม่มีด่านให้เล่นเลย แอดมินลืมใส่ข้อมูลรึเปล่า?</h4>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>
