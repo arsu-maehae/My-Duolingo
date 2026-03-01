@@ -1,38 +1,60 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Level, Question
 import random
+from pythainlp.tokenize import word_tokenize # 👈 นำเข้าตัวตัดคำภาษาไทย
 
 def home(request):
-    # ดึงด่านทั้งหมดออกมา เรียงตามเลข Level จากน้อยไปมาก
     levels = Level.objects.all().order_by('level_number')
-    
-    # ส่งข้อมูล levels ไปให้หน้าไฟล์ home.html
     return render(request, 'lessons/home.html', {'levels': levels})
 
 def play_level(request, level_id):
-    # 1. หาด่านที่ขุนแผนกดเลือกมา
     level = get_object_or_404(Level, level_number=level_id)
     
-    # 2. ดึงคำศัพท์ทั้งหมดในด่านนี้มา
-    all_questions = list(level.questions.all())
+    # 1. ดึงข้อสอบ
+    all_words = list(level.questions.filter(question_type='word'))
+    selected_words = random.sample(all_words, min(len(all_words), 3))
     
-    # 3. สุ่มมาแค่ 5 ข้อ (ถ้ามีศัพท์เกิน 5 คำ)
-    if len(all_questions) > 5:
-        selected_questions = random.sample(all_questions, 5)
-    else:
-        selected_questions = all_questions
-        
-    # 4. แปลงข้อมูลให้อยู่ในรูปแบบที่ JavaScript เอาไปใช้ง่ายๆ (เป็น List of Dictionaries)
+    all_sentences = list(level.questions.filter(question_type='sentence'))
+    selected_sentences = random.sample(all_sentences, min(len(all_sentences), 2))
+    selected_questions = selected_words + selected_sentences
+    
+    # ดึงคำแปลภาษาไทยทั้งหมดในด่านนี้มาเตรียมไว้ทำ "คำหลอก"
+    all_th_meanings = list(level.questions.values_list('th_meaning', flat=True))
+    
+    # 2. เตรียมข้อมูลส่งให้หน้าเว็บ
     questions_data = []
     for q in selected_questions:
-        questions_data.append({
+        data = {
+            'type': q.question_type,
             'jp_text': q.jp_text,
             'jp_reading': q.jp_reading,
             'th_meaning': q.th_meaning,
-            'en_meaning': q.en_meaning
-        })
+            'en_meaning': q.en_meaning,
+            'choices': [] # 👈 กล่องเก็บคำศัพท์ให้กดเลือก
+        }
         
-    # 5. ส่งข้อมูลไปให้หน้า play.html (เดี๋ยวเราจะสร้างหน้านี้กัน)
+        # 🌟 ถ้าเป็นประโยค ให้สร้างปุ่มคำศัพท์ (เฉลย + คำหลอก)
+        if q.question_type == 'sentence':
+            correct_ans = q.th_meaning.split(',')[0].strip() # เอาเฉลยแบบแรกสุดมาใช้
+            
+            # ตัดคำเฉลย (เช่น "ฉัน/กิน/ข้าว")
+            correct_words = word_tokenize(correct_ans, engine='newmm', keep_whitespace=False)
+            
+            # สุ่มคำหลอกมา 3 คำ
+            fake_words = []
+            for _ in range(3):
+                random_meaning = random.choice(all_th_meanings).split(',')[0]
+                random_tokens = word_tokenize(random_meaning, engine='newmm', keep_whitespace=False)
+                if random_tokens:
+                    fake_words.append(random.choice(random_tokens))
+            
+            # เอาคำจริงกับคำหลอกมารวมกันแล้วสับเปลี่ยนตำแหน่ง
+            choices = correct_words + fake_words
+            random.shuffle(choices)
+            data['choices'] = choices
+            
+        questions_data.append(data)
+        
     return render(request, 'lessons/play.html', {
         'level': level,
         'questions': questions_data

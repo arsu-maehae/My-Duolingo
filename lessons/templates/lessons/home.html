@@ -5,38 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JP Learn - ลุยเลยขุนแผน!</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Noto+Sans+Thai:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* ลูกเล่นขยับกล่องด่านเวลาเอาเมาส์ชี้ */
-        .level-card { transition: 0.3s; cursor: pointer; border-radius: 15px; }
-        .level-card:hover { transform: translateY(-10px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background-color: #f4f7f6; /* สีพื้นหลังโทนเทาอมฟ้าสบายตา */
+        }
+        .header-title {
+            font-family: 'Fredoka', sans-serif;
+            color: #2c3e50;
+        }
+        .level-card { 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            border-radius: 24px; 
+            border: 2px solid transparent;
+            background: #ffffff;
+        }
+        .level-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08); 
+            border-color: #e0e6ed;
+        }
+        .btn-start {
+            background-color: #1cb0f6; /* สีฟ้าสไตล์ Duolingo */
+            border: none;
+            border-bottom: 4px solid #1899d6;
+            color: white;
+            font-weight: 600;
+            transition: 0.1s;
+        }
+        .btn-start:hover {
+            background-color: #1cb0f6;
+            color: white;
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+            margin-bottom: 2px;
+        }
+        .btn-start:active {
+            transform: translateY(4px);
+            border-bottom-width: 0px;
+            margin-bottom: 4px;
+        }
+        .level-badge {
+            background: #ffc800;
+            color: #c95100;
+            padding: 5px 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
     <div class="container py-5">
-        <div class="text-center mb-5">
-            <h1 class="display-4 fw-bold">🇯🇵 JP Learn</h1>
-            <p class="lead text-muted">เลือกด่านที่ต้องการเรียนได้เลย</p>
+        <div class="text-center mb-5 mt-4">
+            <h1 class="display-3 fw-bold header-title">🇯🇵 JP Learn</h1>
+            <p class="lead text-muted fw-semibold">เลือกด่านที่ต้องการท้าทายได้เลย!</p>
         </div>
 
-        <div class="row justify-content-center">
+        <div class="row justify-content-center g-4">
             {% for level in levels %}
-            <div class="col-md-4 mb-4">
-                <div class="card level-card h-100 shadow-sm border-0">
+            <div class="col-md-4 col-sm-6">
+                <div class="card level-card h-100 shadow-sm">
                     <div class="card-body text-center d-flex flex-column justify-content-center p-4">
-                        <h2 class="card-title text-primary fw-bold">Lv. {{ level.level_number }}</h2>
-                        <h5 class="card-text text-secondary mb-4">{{ level.title }}</h5>
+                        <div class="mb-2">
+                            <span class="level-badge fs-5">Lv. {{ level.level_number }}</span>
+                        </div>
+                        <h4 class="card-title text-dark fw-bold mb-4">{{ level.title }}</h4>
                         
-                        <a href="/level/{{ level.level_number }}/" class="btn btn-success btn-lg rounded-pill">
+                        <a href="/level/{{ level.level_number }}/" class="btn btn-start btn-lg rounded-pill w-100">
                             เริ่มเรียนเลย!
                         </a>
-                        
                     </div>
                 </div>
             </div>
             {% empty %}
-            <div class="col-12 text-center">
-                <h4 class="text-muted">ยังไม่มีด่านให้เล่นเลย แอดมินลืมใส่ข้อมูลรึเปล่า?</h4>
+            <div class="col-12 text-center mt-5">
+                <h4 class="text-muted bg-white p-4 rounded-4 shadow-sm d-inline-block">😅 ยังไม่มีด่านให้เล่นเลย แอดมินลืมใส่ข้อมูลรึเปล่า?</h4>
             </div>
             {% endfor %}
         </div>

@@ -1,109 +1,198 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. ดึงข้อมูลคำศัพท์ที่ Django โยนมาให้
     const questionsElement = document.getElementById('questions-data');
-    if (!questionsElement) return; // ถ้าหาข้อมูลไม่เจอให้หยุดทำงาน (กัน Error)
+    if (!questionsElement) return; 
     
     const questions = JSON.parse(questionsElement.textContent);
-    
-    // ตัวแปรควบคุมเกม
     let currentIndex = 0;
     let score = 0;
 
-    // ดึง Element จากหน้าเว็บมาเตรียมไว้
     const jpText = document.getElementById('jp-text');
     const jpReading = document.getElementById('jp-reading');
-    const hintBox = document.getElementById('hint-box');   // 👈 เพิ่มบรรทัดนี้
-    const hintText = document.getElementById('hint-text'); // 👈 เพิ่มบรรทัดนี้
+    const hintBox = document.getElementById('hint-box');   
+    const hintText = document.getElementById('hint-text'); 
+    
+    // UI Elements
+    const wordInputContainer = document.getElementById('word-input-container');
     const answerInput = document.getElementById('answer-input');
+    const sentenceUiContainer = document.getElementById('sentence-ui-container');
+    const selectedWordsZone = document.getElementById('selected-words-zone');
+    const wordBankZone = document.getElementById('word-bank-zone');
+    
     const btnSpeak = document.getElementById('btn-speak');
     const btnCheck = document.getElementById('btn-check');
     const btnNext = document.getElementById('btn-next');
+    const btnOverride = document.getElementById('btn-override'); 
     const feedbackArea = document.getElementById('feedback-area');
     const progressText = document.getElementById('progress-text');
     const quizCard = document.getElementById('quiz-card');
     const resultScreen = document.getElementById('result-screen');
     const finalScore = document.getElementById('final-score');
 
-    // ฟังก์ชัน: โหลดคำถามขึ้นหน้าจอ
     function loadQuestion() {
         const currentQ = questions[currentIndex];
         jpText.textContent = currentQ.jp_text;
         
-        // 🪄 ใช้ WanaKana แปลงฮิรางานะ (เช่น はな) ให้เป็น โรมาจิ (เช่น hana)
-        const hiraganaReading = currentQ.jp_reading;
-        const romajiReading = wanakana.toRomaji(hiraganaReading);
-        
-        // เอามาโชว์คู่กันไปเลย! ขุนแผนจะได้จำได้ทั้งสองแบบ เช่น はな (hana)
-        jpReading.textContent = `${hiraganaReading} (${romajiReading})`;
+        // แยกการแสดงผลคำอ่าน
+        if (currentQ.type === 'sentence') {
+            const romajiMatch = currentQ.jp_reading.match(/\((.*?)\)/);
+            if (romajiMatch) {
+                jpReading.textContent = `(${romajiMatch[1]})`;
+            } else {
+                jpReading.textContent = currentQ.jp_reading;
+            }
+        } else {
+            const hiraganaReading = currentQ.jp_reading;
+            const romajiReading = wanakana.toRomaji(hiraganaReading);
+            jpReading.textContent = `(${romajiReading})`;
+        }
 
-        answerInput.value = '';
-        answerInput.disabled = false;
-        answerInput.focus(); 
+        // สลับ UI
+        if (currentQ.type === 'sentence') {
+            wordInputContainer.classList.add('d-none');
+            sentenceUiContainer.classList.remove('d-none');
+            setupSentenceUI(currentQ.choices);
+        } else {
+            sentenceUiContainer.classList.add('d-none');
+            wordInputContainer.classList.remove('d-none');
+            answerInput.value = '';
+            answerInput.disabled = false;
+            answerInput.focus(); 
+        }
         
         feedbackArea.classList.add('d-none');
         btnCheck.classList.remove('d-none');
         btnNext.classList.add('d-none');
+        if (btnOverride) btnOverride.classList.add('d-none'); 
         progressText.textContent = `${currentIndex + 1}/${questions.length}`;
+        document.getElementById('progress-bar').style.width = `${((currentIndex) / questions.length) * 100}%`;
     }
 
-    // ฟังก์ชัน: ให้คอมพิวเตอร์อ่านออกเสียงภาษาญี่ปุ่น
+    function setupSentenceUI(choices) {
+        selectedWordsZone.innerHTML = ''; 
+        wordBankZone.innerHTML = '';
+        
+        choices.forEach(word => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-outline-secondary btn-lg rounded-pill shadow-sm';
+            btn.textContent = word;
+            btn.onclick = function() {
+                if (btn.parentElement === selectedWordsZone) {
+                    wordBankZone.appendChild(btn);
+                } else {
+                    selectedWordsZone.appendChild(btn);
+                }
+            };
+            wordBankZone.appendChild(btn);
+        });
+    }
+
     function playAudio() {
-        const textToSpeak = questions[currentIndex].jp_text; 
+        const currentQ = questions[currentIndex];
+        let textToSpeak = currentQ.jp_text; 
+        if (currentQ.type === 'word' && currentQ.jp_reading) {
+            textToSpeak = currentQ.jp_reading;
+        }
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
         utterance.lang = 'ja-JP'; 
         window.speechSynthesis.speak(utterance);
     }
 
-    // ฟังก์ชัน: ตรวจคำตอบ
+    function showCorrectFeedback() {
+        feedbackArea.classList.remove('alert-danger');
+        feedbackArea.classList.add('alert-success');
+        feedbackArea.innerHTML = '<strong><i class="fas fa-check-circle"></i> ถูกต้อง!</strong>';
+        if (btnOverride) btnOverride.classList.add('d-none');
+        score++;
+    }
+
+    if (btnOverride) {
+        btnOverride.addEventListener('click', showCorrectFeedback);
+    }
+
+    // 🌟 1. ฟังก์ชันตัวช่วยวัดระดับความเหมือน (คำนวณ 0.0 ถึง 1.0)
+    function getSimilarity(str1, str2) {
+        if (str1 === str2) return 1.0;
+        const len1 = str1.length, len2 = str2.length;
+        const maxLen = Math.max(len1, len2);
+        if (maxLen === 0) return 1.0;
+
+        let matrix = [];
+        for (let i = 0; i <= len1; i++) matrix[i] = [i];
+        for (let j = 0; j <= len2; j++) matrix[0][j] = j;
+
+        for (let i = 1; i <= len1; i++) {
+            for (let j = 1; j <= len2; j++) {
+                const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j] + 1,      
+                    matrix[i][j - 1] + 1,      
+                    matrix[i - 1][j - 1] + cost 
+                );
+            }
+        }
+        return (maxLen - matrix[len1][len2]) / maxLen;
+    }
+
     function checkAnswer() {
         const currentQ = questions[currentIndex];
-        const userAnswer = answerInput.value.trim().toLowerCase();
+        const cleanString = (str) => str.toLowerCase().replace(/[\s\.。!?,;\(\)（）]/g, '');
         
-        // 🧠 ฟังก์ชันช่วยแยกคำตอบ: ตัดลูกน้ำและตัดข้อความในวงเล็บทิ้ง
-        function getPossibleAnswers(text) {
-            if (!text) return [];
-            let cleanText = text.replace(/\(.*?\)/g, '').replace(/（.*?）/g, '');
-            let parts = cleanText.split(/,|;/);
-            return parts.map(p => p.trim().toLowerCase()).filter(p => p.length > 0);
+        let userAnswer = '';
+        
+        if (currentQ.type === 'sentence') {
+            const selectedButtons = Array.from(selectedWordsZone.children);
+            userAnswer = cleanString(selectedButtons.map(b => b.textContent).join(''));
+            Array.from(wordBankZone.children).forEach(b => b.disabled = true);
+            selectedButtons.forEach(b => b.disabled = true);
+        } else {
+            userAnswer = cleanString(answerInput.value);
+            answerInput.disabled = true; 
         }
 
-        const validThAnswers = getPossibleAnswers(currentQ.th_meaning);
-        const validEnAnswers = getPossibleAnswers(currentQ.en_meaning);
+        const validThAnswers = currentQ.th_meaning.split(',').map(p => cleanString(p));
+        const validEnAnswers = currentQ.en_meaning.split(',').map(p => cleanString(p));
         const allValidAnswers = [...validThAnswers, ...validEnAnswers];
 
-        answerInput.disabled = true; 
         btnCheck.classList.add('d-none'); 
         btnNext.classList.remove('d-none'); 
         feedbackArea.classList.remove('d-none', 'alert-success', 'alert-danger');
 
-        // 🎯 ตรวจคำตอบแบบ "ใจดีขึ้น" (อนุโลมให้พิมพ์แค่บางส่วนได้)
-        const isCorrect = allValidAnswers.some(valid => {
-            // 1. ตรงกันเป๊ะๆ
+        let isCorrect = false;
+
+        // 🌟 2. อัปเกรดระบบตรวจคำตอบ ให้ยอมรับความคล้ายคลึง
+        isCorrect = allValidAnswers.some(valid => {
+            // ถ้ายืนยันตรงกัน 100% ก็ให้ผ่านเลย
             if (valid === userAnswer) return true;
-            // 2. พิมพ์มาเป็นส่วนหนึ่งของเฉลย (เช่น "เยี่ยม" ซ่อนอยู่ใน "เรียกหา เยี่ยมชม")
-            // (บังคับว่าต้องพิมพ์มาอย่างน้อย 2 ตัวอักษร เพื่อป้องกันการกดมั่วแค่ตัวอักษรเดียวแล้วฟลุ๊คถูก)
-            if (valid.includes(userAnswer) && userAnswer.length >= 2) return true;
+            
+            // หาค่าความเหมือนเป็นเปอร์เซ็นต์
+            let similarityScore = getSimilarity(valid, userAnswer);
+            
+            // 🎯 ถ้าเป็นโหมดประโยค ขอแค่เหมือนเกิน 75% ถือว่าผ่าน! (ขาดคำว่า นี่/เป็น/อยู่ ไปบ้างก็ไม่เป็นไร)
+            if (currentQ.type === 'sentence' && similarityScore >= 0.65) return true;
+            
+            // 🎯 ถ้าเป็นโหมดคำศัพท์เดี่ยว พิมพ์ตกหล่นได้นิดหน่อย (ยอมให้ 80%) หรือพิมพ์ถูกบางส่วน (includes) ก็ให้ผ่าน
+            if (currentQ.type === 'word') {
+                if (valid.includes(userAnswer) && userAnswer.length >= 2) return true;
+                if (similarityScore >= 0.80) return true;
+            }
             
             return false;
         });
 
         if (isCorrect) {
-            feedbackArea.classList.add('alert-success');
-            feedbackArea.innerHTML = '<strong><i class="fas fa-check-circle"></i> ถูกต้อง!</strong>';
-            score++;
+            showCorrectFeedback();
         } else {
             feedbackArea.classList.add('alert-danger');
             feedbackArea.innerHTML = `
                 <strong><i class="fas fa-times-circle"></i> ผิด!</strong><br>
                 <div class="mt-2 text-start" style="font-size: 1.1em;">
-                    <p class="mb-1 text-dark"><b>ความหมาย:</b> ${currentQ.th_meaning || '-'}</p>
-                    <p class="mb-0 text-muted"><b>meaning:</b> ${currentQ.en_meaning || '-'}</p>
+                    <p class="mb-1 text-dark"><b>เฉลยที่ถูกต้อง:</b> ${currentQ.th_meaning.split(',')[0]}</p>
                 </div>
             `;
+            if (btnOverride) btnOverride.classList.remove('d-none'); 
         }
     }
 
-    // ฟังก์ชัน: เปลี่ยนไปข้อถัดไป
     function nextQuestion() {
         currentIndex++;
         if (currentIndex < questions.length) {
@@ -115,7 +204,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ผูกปุ่มเข้ากับฟังก์ชันต่างๆ
     btnSpeak.addEventListener('click', playAudio);
     btnCheck.addEventListener('click', checkAnswer);
     btnNext.addEventListener('click', nextQuestion);
@@ -130,19 +218,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 🪄 เอฟเฟกต์กล่องคำใบ้ (เอาเมาส์ชี้/เอาออก)
     hintBox.addEventListener('mouseenter', function() {
-        hintText.style.opacity = '0';  // ซ่อนข้อความ "เอาเมาส์ชี้..."
-        jpReading.style.opacity = '1'; // โชว์คำอ่าน
+        hintText.style.opacity = '0';  
+        jpReading.style.opacity = '1'; 
     });
 
     hintBox.addEventListener('mouseleave', function() {
-        hintText.style.opacity = '1';  // โชว์ข้อความ "เอาเมาส์ชี้..." กลับมา
-        jpReading.style.opacity = '0'; // ซ่อนคำอ่าน
+        hintText.style.opacity = '1';  
+        jpReading.style.opacity = '0'; 
     });
 
-
-    // สั่งเริ่มเกมทันทีที่เปิดหน้าเว็บ!
     if (questions.length > 0) {
         loadQuestion();
         setTimeout(playAudio, 500);
