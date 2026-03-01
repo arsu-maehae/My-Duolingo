@@ -115,6 +115,22 @@
             height: 100%;
             transition: width 0.4s ease;
         }
+
+        /* 🌟 เอฟเฟกต์สไลด์เปลี่ยนหน้าแบบแอปมือถือ */
+        @keyframes slideInFromRight {
+            0% { 
+                opacity: 0; 
+                transform: translateX(50px); /* เริ่มต้นเลื่อนไปทางขวา 50px */
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateX(0); /* กลับมาที่เดิม */
+            }
+        }
+        
+        .slide-animation {
+            animation: slideInFromRight 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        }
     </style>
 </head>
 <body>

@@ -29,6 +29,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const finalScore = document.getElementById('final-score');
 
     function loadQuestion() {
+
+        // 🌟 1. ทริคเล่นแอนิเมชันสไลด์เปลี่ยนข้อ
+        quizCard.classList.remove('slide-animation'); // ถอดแอนิเมชันเก่าออกก่อน
+        void quizCard.offsetWidth;                    // 🪄 บังคับให้บราวเซอร์รีเซ็ตกล่องใหม่ (Reflow)
+        quizCard.classList.add('slide-animation');    // ใส่แอนิเมชันกลับเข้าไปให้มันเล่นใหม่!
+        
         const currentQ = questions[currentIndex];
         jpText.textContent = currentQ.jp_text;
         
