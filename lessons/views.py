@@ -28,7 +28,8 @@ def play_level(request, level_id):
         questions_data.append({
             'jp_text': q.jp_text,
             'jp_reading': q.jp_reading,
-            'th_meaning': q.th_meaning
+            'th_meaning': q.th_meaning,
+            'en_meaning': q.en_meaning
         })
         
     # 5. ส่งข้อมูลไปให้หน้า play.html (เดี๋ยวเราจะสร้างหน้านี้กัน)

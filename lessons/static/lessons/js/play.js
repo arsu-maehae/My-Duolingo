@@ -46,23 +46,49 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ฟังก์ชัน: ตรวจคำตอบ
+// ฟังก์ชัน: ตรวจคำตอบ
     function checkAnswer() {
         const currentQ = questions[currentIndex];
         const userAnswer = answerInput.value.trim().toLowerCase();
-        const correctAnswer = currentQ.th_meaning.trim().toLowerCase();
+        
+        // 🧠 ฟังก์ชันช่วยแยกคำตอบ: ตัดลูกน้ำและตัดข้อความในวงเล็บทิ้ง
+        function getPossibleAnswers(text) {
+            if (!text) return [];
+            // 1. ลบข้อความที่อยู่ในวงเล็บออกให้หมด เช่น " (เช่น สวมหมวก)"
+            let cleanText = text.replace(/\(.*?\)/g, '').replace(/（.*?）/g, '');
+            // 2. แยกคำด้วยลูกน้ำ (,) หรือ เซมิโคลอน (;)
+            let parts = cleanText.split(/,|;/);
+            // 3. ลบช่องว่างหัวท้ายแต่ละคำ และทำให้เป็นตัวเล็ก
+            return parts.map(p => p.trim().toLowerCase()).filter(p => p.length > 0);
+        }
+
+        // ดึงคำตอบที่เป็นไปได้ทั้งหมดออกมา (ทั้งไทยและอังกฤษ)
+        const validThAnswers = getPossibleAnswers(currentQ.th_meaning);
+        const validEnAnswers = getPossibleAnswers(currentQ.en_meaning);
+        
+        // เอาคำตอบไทยและอังกฤษมารวมกันไว้ในตะกร้าเดียว
+        const allValidAnswers = [...validThAnswers, ...validEnAnswers];
 
         answerInput.disabled = true; 
         btnCheck.classList.add('d-none'); 
         btnNext.classList.remove('d-none'); 
         feedbackArea.classList.remove('d-none', 'alert-success', 'alert-danger');
 
-        if (userAnswer === correctAnswer) {
+        // 🎯 ตรวจว่าคำตอบที่ขุนแผนพิมพ์มา มีอยู่ในตะกร้าคำตอบที่ถูกหรือไม่?
+        if (allValidAnswers.includes(userAnswer)) {
             feedbackArea.classList.add('alert-success');
-            feedbackArea.innerHTML = '<strong><i class="fas fa-check-circle"></i> ถูกต้อง!</strong> เก่งมากเลย';
+            feedbackArea.innerHTML = '<strong><i class="fas fa-check-circle"></i> ถูกต้อง!</strong>';
             score++;
         } else {
+            // โชว์เฉลยทั้ง 2 ภาษา
             feedbackArea.classList.add('alert-danger');
-            feedbackArea.innerHTML = `<strong><i class="fas fa-times-circle"></i> ผิดจ้า!</strong><br>คำตอบที่ถูกคือ: <span class="fw-bold">${currentQ.th_meaning}</span>`;
+            feedbackArea.innerHTML = `
+                <strong><i class="fas fa-times-circle"></i> ผิด!</strong><br>
+                <div class="mt-2 text-start" style="font-size: 1.1em;">
+                    <p class="mb-1 text-dark"><b>ความหมาย:</b> ${currentQ.th_meaning || '-'}</p>
+                    <p class="mb-0 text-muted"><b>meaning:</b> ${currentQ.en_meaning || '-'}</p>
+                </div>
+            `;
         }
     }
 
