@@ -23,7 +23,15 @@
                 </button>
                 
                 <h1 class="display-2 fw-bold text-dark mb-0" id="jp-text">...</h1>
-                <p class="text-muted fs-4 mb-4" id="jp-reading">...</p>
+                
+                <div id="hint-box" class="mb-4 mt-2" style="cursor: pointer; height: 35px; position: relative;">
+                    <span id="hint-text" class="text-muted fs-6" style="transition: opacity 0.3s; position: absolute; width: 100%; left: 0;">
+                        <i class="fas fa-lightbulb text-warning"></i> ดูคำอ่าน
+                    </span>
+                    <span id="jp-reading" class="text-primary fs-4 fw-bold" style="opacity: 0; transition: opacity 0.3s; position: absolute; width: 100%; left: 0;">
+                        ...
+                    </span>
+                </div>
 
                 <div class="mb-4 text-start">
                     <input type="text" id="answer-input" class="form-control form-control-lg text-center" placeholder="พิมพ์คำตอบที่นี่..." autocomplete="off">
@@ -38,7 +46,7 @@
         
         <div id="result-screen" class="card shadow-sm border-0 rounded-4 d-none text-center">
             <div class="card-body p-5">
-                <h2 class="mb-4">จบด่านแล้ว ขุนแผน! 🎉</h2>
+                <h2 class="mb-4">จบด่านแล้ว</h2>
                 <h1 class="display-1 fw-bold text-success mb-4"><span id="final-score">0</span> / 5</h1>
                 <a href="/" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold">กลับไปเลือกด่าน</a>
             </div>
@@ -46,7 +54,7 @@
     </div>
 
     {{ questions|json_script:"questions-data" }}
-
+    <script src="https://unpkg.com/wanakana"></script>
     <script src="{% static 'lessons/js/play.js' %}"></script>
 </body>
 </html>
