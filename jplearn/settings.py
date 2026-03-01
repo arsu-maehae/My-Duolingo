@@ -116,3 +116,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# อนุญาตให้เปิด Iframe ได้ ถ้ามาจากเว็บไซต์เดียวกัน (ป้องกันจอกระดาษหน้าบึ้ง)
+X_FRAME_OPTIONS = 'SAMEORIGIN'

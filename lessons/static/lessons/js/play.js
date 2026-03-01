@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
         quizCard.classList.remove('slide-animation'); // ถอดแอนิเมชันเก่าออกก่อน
         void quizCard.offsetWidth;                    // 🪄 บังคับให้บราวเซอร์รีเซ็ตกล่องใหม่ (Reflow)
         quizCard.classList.add('slide-animation');    // ใส่แอนิเมชันกลับเข้าไปให้มันเล่นใหม่!
-        
+
         const currentQ = questions[currentIndex];
         jpText.textContent = currentQ.jp_text;
         
@@ -205,6 +205,10 @@ document.addEventListener('DOMContentLoaded', function() {
             loadQuestion(); 
         } else {
             quizCard.classList.add('d-none');
+            
+            // 🌟 เพิ่มบรรทัดนี้: ซ่อนกล่องปุ่มสีเขียว/น้ำเงิน ทิ้งไปเลยตอนจบเกม!
+            document.getElementById('action-buttons-container').classList.add('d-none');
+            
             resultScreen.classList.remove('d-none');
             finalScore.textContent = score;
         }
