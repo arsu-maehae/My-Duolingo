@@ -23,9 +23,11 @@ class Question(models.Model):
     jp_text = models.CharField(max_length=200)      # ภาษาญี่ปุ่น เช่น 食べる
     jp_reading = models.CharField(max_length=200, blank=True) # คำอ่าน เช่น Taberu
     th_meaning = models.CharField(max_length=200)   # คำแปลภาษาไทย (คำตอบ)
+    # --- เพิ่มฟิลด์ใหม่ตรงนี้ ---
+    en_meaning = models.CharField(max_length=200, blank=True, null=True) # คำแปลภาษาอังกฤษ (ตัวช่วย)
 
     def __str__(self):
-        return f"[{self.level.level_number}] {self.jp_text} = {self.th_meaning}"
+        return f"[{self.level.level_number}] {self.jp_text} (TH: {self.th_meaning} | EN: {self.en_meaning})"
 
 # 3. ตาราง UserProgress (เก็บความคืบหน้าของผู้เล่น)
 class UserProgress(models.Model):

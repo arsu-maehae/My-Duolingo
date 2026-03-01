@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lv.{{ level.level_number }} - ฝึกคำศัพท์</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+    <div class="container py-5" style="max-width: 600px;">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="/" class="btn btn-outline-secondary fw-bold"><i class="fas fa-arrow-left"></i> กลับ</a>
+            <h4 class="mb-0 fw-bold text-secondary">ข้อที่ <span id="progress-text">1/5</span></h4>
+        </div>
+
+        <div id="quiz-card" class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-5 text-center">
+                <button id="btn-speak" class="btn btn-light rounded-circle mb-3 shadow" style="width: 70px; height: 70px;">
+                    <i class="fas fa-volume-up fa-2x text-primary"></i>
+                </button>
+                
+                <h1 class="display-2 fw-bold text-dark mb-0" id="jp-text">...</h1>
+                <p class="text-muted fs-4 mb-4" id="jp-reading">...</p>
+
+                <div class="mb-4 text-start">
+                    <input type="text" id="answer-input" class="form-control form-control-lg text-center" placeholder="พิมพ์คำตอบที่นี่..." autocomplete="off">
+                </div>
+
+                <div id="feedback-area" class="alert d-none mb-4 fs-5" role="alert"></div>
+
+                <button id="btn-check" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold mb-2">ตรวจคำตอบ</button>
+                <button id="btn-next" class="btn btn-success btn-lg w-100 rounded-pill fw-bold d-none">ไปข้อถัดไป <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        
+        <div id="result-screen" class="card shadow-sm border-0 rounded-4 d-none text-center">
+            <div class="card-body p-5">
+                <h2 class="mb-4">จบด่านแล้ว ขุนแผน! 🎉</h2>
+                <h1 class="display-1 fw-bold text-success mb-4"><span id="final-score">0</span> / 5</h1>
+                <a href="/" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold">กลับไปเลือกด่าน</a>
+            </div>
+        </div>
+    </div>
+
+    {{ questions|json_script:"questions-data" }}
+
+    <script src="{% static 'lessons/js/play.js' %}"></script>
+</body>
+</html>
