@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             feedbackArea.classList.add('alert-danger');
             feedbackArea.innerHTML = `
-                <strong><i class="fas fa-times-circle"></i> ผิดจ้า!</strong><br>
+                <strong><i class="fas fa-times-circle"></i> ผิด!</strong><br>
                 <div class="mt-2 text-start" style="font-size: 1.1em;">
                     <p class="mb-1 text-dark"><b>ความหมาย:</b> ${currentQ.th_meaning || '-'}</p>
                     <p class="mb-0 text-muted"><b>meaning:</b> ${currentQ.en_meaning || '-'}</p>
