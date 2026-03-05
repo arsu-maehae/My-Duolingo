@@ -25,6 +25,8 @@
         .btn-next-q { background-color: #58cc02; color: white; border-bottom: 5px solid #58a700; }
         .btn-next-q:active { border-bottom-width: 0; transform: translateY(5px); }
         .btn-override-ans { background-color: #ffc800; color: #c95100; border-bottom: 5px solid #e5a700; }
+        .btn-retry-ans { background-color: #ff4b4b; color: white; border-bottom: 5px solid #d33030; }
+        .btn-retry-ans:active { border-bottom-width: 0; transform: translateY(5px); }
         .btn-override-ans:active { border-bottom-width: 0; transform: translateY(5px); }
         .alert { border-radius: 16px; border: none; font-weight: 500; }
         .alert-success { background-color: #d7ffb8; color: #2b7a0b; }
@@ -87,17 +89,21 @@
 
         <div id="result-screen" class="card shadow border-0 rounded-4 d-none text-center mt-5">
             <div class="card-body p-5">
-                <div class="mb-4 text-warning"><i class="fas fa-star fa-5x"></i></div>
-                <h2 class="mb-3 fw-bold text-dark">เก่งมาก! บทเรียนเสร็จสมบูรณ์</h2>
-                <h1 class="display-2 fw-bold text-success mb-4"><span id="final-score">0</span> / 5</h1>
-                <a href="#" id="btn-finish-game" class="btn btn-game btn-check-ans rounded-pill px-5">ดำเนินการต่อ</a>
+                <div id="result-icon" class="mb-4"><i class="fas fa-star fa-5x text-warning"></i></div>
+                
+                <h2 id="result-title" class="mb-3 fw-bold text-dark">เก่งมาก! บทเรียนเสร็จสมบูรณ์</h2>
+                <h1 id="score-text" class="display-2 fw-bold text-success mb-4"><span id="final-score">0</span> / 5</h1>
+                
+                <a href="#" id="btn-finish-game" class="btn btn-game btn-check-ans rounded-pill px-5 w-100">ดำเนินการต่อ</a>
+                
+                <button id="btn-retry-game" class="btn btn-game btn-retry-ans rounded-pill px-5 w-100 d-none">เริ่มใหม่</button>
             </div>
         </div>
     </div>
 
     {{ questions|json_script:"questions-data" }}
     <script src="https://unpkg.com/wanakana"></script>
-    <script src="{% static 'lessons/js/play.js' %}?v=5"></script>
+    <script src="{% static 'lessons/js/play.js' %}?v=999"></script>
     
     <script>
         const observer = new MutationObserver(function(mutations) {

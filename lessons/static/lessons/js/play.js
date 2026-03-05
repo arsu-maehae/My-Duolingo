@@ -206,11 +206,39 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             quizCard.classList.add('d-none');
             
-            // 🌟 เพิ่มบรรทัดนี้: ซ่อนกล่องปุ่มสีเขียว/น้ำเงิน ทิ้งไปเลยตอนจบเกม!
-            document.getElementById('action-buttons-container').classList.add('d-none');
+            // ซ่อนกล่องปุ่มสีเขียว/น้ำเงิน ทิ้งไปเลยตอนจบเกม!
+            const actionBtns = document.getElementById('action-buttons-container');
+            if (actionBtns) actionBtns.classList.add('d-none');
             
             resultScreen.classList.remove('d-none');
-            finalScore.textContent = score;
+
+            // 🌟 1. ดึง Elements หน้าสรุปผลมาใช้งาน
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const scoreText = document.getElementById('score-text');
+            const btnFinish = document.getElementById('btn-finish-game');
+            const btnRetry = document.getElementById('btn-retry-game');
+
+            // 🌟 2. ลอจิกตรวจสอบคะแนน (สอบผ่าน vs สอบตก)
+            if (score >= 3) {
+                // กรณี: สอบผ่าน (ได้ 3, 4, 5 คะแนน)
+                if (resultIcon) resultIcon.innerHTML = '<i class="fas fa-star fa-5x text-warning"></i>';
+                if (resultTitle) resultTitle.textContent = 'เก่งมาก! บทเรียนเสร็จสมบูรณ์';
+                // 🌟 แทรกคะแนนเข้าไปใน h1 โดยตรง
+                if (scoreText) scoreText.innerHTML = `<span id="final-score">${score}</span> / 5`; 
+                if (scoreText) scoreText.className = 'display-2 fw-bold text-success mb-4';
+                if (btnFinish) btnFinish.classList.remove('d-none');
+                if (btnRetry) btnRetry.classList.add('d-none');
+            } else {
+                // กรณี: สอบตก (ได้ 0, 1, 2 คะแนน)
+                if (resultIcon) resultIcon.innerHTML = '<i class="fas fa-heart-broken fa-5x text-danger"></i>';
+                if (resultTitle) resultTitle.textContent = 'พยายามอีกนิด! ต้องได้ 3 คะแนนขึ้นไปนะ';
+                // 🌟 แทรกคะแนนเข้าไปใน h1 โดยตรง
+                if (scoreText) scoreText.innerHTML = `<span id="final-score">${score}</span> / 5`;
+                if (scoreText) scoreText.className = 'display-2 fw-bold text-danger mb-4';
+                if (btnFinish) btnFinish.classList.add('d-none');
+                if (btnRetry) btnRetry.classList.remove('d-none');
+            }
         }
     }
 
@@ -218,6 +246,16 @@ document.addEventListener('DOMContentLoaded', function() {
     btnCheck.addEventListener('click', checkAnswer);
     btnNext.addEventListener('click', nextQuestion);
     
+    // 🌟 3. เพิ่ม Event Listener ให้ปุ่ม "เริ่มใหม่"
+    const btnRetryGame = document.getElementById('btn-retry-game');
+    if (btnRetryGame) {
+        btnRetryGame.addEventListener('click', function(e) {
+            e.preventDefault();
+            // รีเฟรชเฉพาะ Iframe เพื่อเริ่มเล่นด่านนี้ใหม่ตั้งแต่ข้อ 1
+            location.reload(); 
+        });
+    }
+
     answerInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             if (!btnCheck.classList.contains('d-none')) {
