@@ -3,181 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JP Learn - เลือกด่าน</title>
+    <title>JP Learn · เลือกด่าน</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+Thai:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans Thai', sans-serif; background: #f7f7f7; }
+        :root {
+            --bg:      #f4f7fa;
+            --surface: #ffffff;
+            --border:  #e2e8f0;
+            --text:    #1e293b;
+            --muted:   #64748b;
 
-        /* ─── Header ─── */
+            --c1:  #1cb0f6;  --c1d: #0a78ad;
+            --c2:  #ff9600;  --c2d: #b85f00;
+            --c3:  #ff4b4b;  --c3d: #a82020;
+            --c4:  #9b59b6;  --c4d: #5d2a78;
+            --c5:  #58cc02;  --c5d: #2c7500;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Noto Sans Thai', sans-serif; background: var(--bg); min-height: 100vh; margin: 0; color: var(--text); }
+
+        /* ══ HEADER ══ */
         .page-header {
-            background: linear-gradient(135deg, #58cc02, #3fa800);
+            background: linear-gradient(150deg, #46b30a 0%, #58cc02 45%, #3fa800 100%);
             color: white;
-            padding: 2.5rem 1.5rem 4rem;
+            padding: 3rem 2rem 8rem; /* เพิ่มพื้นที่สีเขียวให้ลึกขึ้น */
             position: relative;
             overflow: hidden;
+            text-align: center;
         }
-        .page-header::after {
-            content: 'LEVELS';
+        .header-deco {
             position: absolute;
-            right: -10px; bottom: -30px;
-            font-size: 8rem;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14rem;
             font-family: 'Fredoka', sans-serif;
             font-weight: 900;
-            opacity: 0.1;
-            pointer-events: none;
-        }
-        .page-header h1 { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(1.8rem,5vw,2.5rem); }
-        .back-btn { color: rgba(255,255,255,0.85); text-decoration: none; font-weight: 600; transition: color 0.2s; }
-        .back-btn:hover { color: white; }
-
-        /* ─── Level cards ─── */
-        .cards-wrap { margin-top: -2rem; position: relative; z-index: 10; }
-
-        .level-card {
-            border-radius: 20px;
-            border: none;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 1.3rem;
-            padding: 1.4rem 1.8rem;
-            color: white;
-            transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
-            position: relative;
-            overflow: hidden;
-        }
-        .level-card::before {
-            content: attr(data-icon);
-            position: absolute;
-            right: -10px; bottom: -20px;
-            font-size: 5rem;
-            opacity: 0.15;
+            opacity: 0.04;
             pointer-events: none;
             line-height: 1;
-        }
-        .level-card:hover { transform: translateY(-5px); filter: brightness(1.06); color: white; }
-        .level-card:active { transform: translateY(1px); }
-
-        .lv1 { background: linear-gradient(135deg,#1cb0f6,#0d92d6); box-shadow: 0 6px 0 #0a78ad, 0 10px 25px rgba(28,176,246,0.3); }
-        .lv2 { background: linear-gradient(135deg,#ff9600,#df7f00); box-shadow: 0 6px 0 #b85f00, 0 10px 25px rgba(255,150,0,0.3); }
-        .lv3 { background: linear-gradient(135deg,#ff4b4b,#d33030); box-shadow: 0 6px 0 #a82020, 0 10px 25px rgba(255,75,75,0.3); }
-        .lv4 { background: linear-gradient(135deg,#9b59b6,#7d3f9b); box-shadow: 0 6px 0 #5d2a78, 0 10px 25px rgba(155,89,182,0.3); }
-        .lv5 { background: linear-gradient(135deg,#58cc02,#3fa800); box-shadow: 0 6px 0 #2c7500, 0 10px 25px rgba(88,204,2,0.3); }
-
-        .level-num-badge {
-            background: rgba(255,255,255,0.22);
-            border-radius: 14px;
-            padding: 8px 14px;
-            font-family: 'Fredoka', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
             white-space: nowrap;
-            flex-shrink: 0;
         }
-        .level-info { flex: 1; }
-        .level-title { font-family: 'Fredoka', sans-serif; font-size: 1.3rem; font-weight: 700; margin: 0 0 3px; line-height: 1.2; }
-        .level-mode { font-size: 0.8rem; opacity: 0.88; font-weight: 500; margin: 0; }
-        .level-diff {
-            background: rgba(255,255,255,0.2);
-            border-radius: 50px;
-            padding: 3px 12px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            display: inline-block;
-            margin-top: 5px;
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: rgba(255,255,255,0.9); text-decoration: none;
+            font-weight: 600; font-size: 1rem;
+            padding: 10px 20px; border-radius: 50px;
+            background: rgba(255,255,255,0.15);
+            transition: 0.2s; backdrop-filter: blur(4px);
+            position: absolute; top: 25px; left: 30px;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.3); color: white; }
+        
+        .header-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+        .header-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-weight: 700; margin: 0 0 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header-sub { font-size: 1.1rem; opacity: 0.9; font-weight: 500; margin-bottom: 0; }
+
+        /* ══ FLEX CARDS AREA ══ */
+        .cards-wrap {
+            position: relative;
+            z-index: 10;
+            margin-top: -5rem; /* ดึงการ์ดขึ้นไปทับ Header */
+            padding: 0 2rem 5rem;
+            max-width: 1400px; /* ความกว้างกางออกเต็มที่ */
+            margin-left: auto; margin-right: auto;
         }
 
-        /* ─── Instruction note ─── */
-        .note-box {
-            background: white;
-            border-radius: 16px;
-            padding: 1rem 1.3rem;
-            border-left: 4px solid #1cb0f6;
-            font-size: 0.83rem;
-            color: #555;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        /* 🌟 เปลี่ยนมาใช้ Flexbox จัดระเบียบ */
+        .level-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center; /* 🌟 ทำให้แถวล่างสุดจัดกึ่งกลางเป๊ะๆ ไม่มีรูโหว่ */
+            align-items: stretch;
         }
-        .note-box strong { color: #2c3e50; }
+
+        /* Level card */
+        .level-card {
+            /* 🌟 สั่งให้การ์ดยืดได้ หดได้ และมีความกว้างเริ่มต้นที่ 340px */
+            flex: 1 1 340px; 
+            max-width: 420px; /* จำกัดความกว้างสุดไม่ให้บานเกินไปจนน่าเกลียด */
+            border-radius: 28px;
+            border: none; text-decoration: none;
+            display: flex; flex-direction: column;
+            color: white; position: relative; overflow: hidden;
+            padding: 2.5rem; min-height: 280px;
+            animation: cardEnter 0.5s cubic-bezier(0.25,0.8,0.25,1) both;
+        }
+        .level-card:hover { transform: translateY(-8px) scale(1.02); color: white; text-decoration: none; }
+        .level-card:active { transform: translateY(2px) scale(0.98); }
+
+        /* สีสันและเงาของการ์ดแต่ละด่าน */
+        .lv1 { background: linear-gradient(135deg,#35bbf8,#0d92d6); box-shadow: 0 8px 0 var(--c1d), 0 15px 30px rgba(28,176,246,0.25); }
+        .lv2 { background: linear-gradient(135deg,#ffab2e,#df7f00); box-shadow: 0 8px 0 var(--c2d), 0 15px 30px rgba(255,150,0,0.25); }
+        .lv3 { background: linear-gradient(135deg,#ff6b6b,#d33030); box-shadow: 0 8px 0 var(--c3d), 0 15px 30px rgba(255,75,75,0.25); }
+        .lv4 { background: linear-gradient(135deg,#b06fd6,#7d3f9b); box-shadow: 0 8px 0 var(--c4d), 0 15px 30px rgba(155,89,182,0.25); }
+        .lv5 { background: linear-gradient(135deg,#6bd601,#3fa800); box-shadow: 0 8px 0 var(--c5d), 0 15px 30px rgba(88,204,2,0.25); }
+
+        .lv1:hover { box-shadow: 0 4px 0 var(--c1d), 0 20px 40px rgba(28,176,246,0.35); }
+        .lv2:hover { box-shadow: 0 4px 0 var(--c2d), 0 20px 40px rgba(255,150,0,0.35); }
+        .lv3:hover { box-shadow: 0 4px 0 var(--c3d), 0 20px 40px rgba(255,75,75,0.35); }
+        .lv4:hover { box-shadow: 0 4px 0 var(--c4d), 0 20px 40px rgba(155,89,182,0.35); }
+        .lv5:hover { box-shadow: 0 4px 0 var(--c5d), 0 20px 40px rgba(88,204,2,0.35); }
+
+        /* เนื้อหาภายในการ์ด */
+        .card-header-top {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 1.5rem; position: relative; z-index: 2;
+        }
+        .card-num-badge {
+            background: rgba(255,255,255,0.25); backdrop-filter: blur(4px);
+            border-radius: 12px; padding: 6px 18px;
+            font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 1.3rem;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .diff-stars { font-size: 1.1rem; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        .card-lv-title { 
+            font-family: 'Fredoka', sans-serif; font-size: 1.8rem; 
+            font-weight: 700; margin: 0 0 15px; line-height: 1.2; 
+            position: relative; z-index: 2;
+        }
+        
+        .card-mode-tags { 
+            display: flex; flex-direction: column; gap: 8px; margin-bottom: 25px; flex-grow: 1; 
+            position: relative; z-index: 2;
+        }
+        .mode-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 1rem; font-weight: 600; opacity: 0.95;
+        }
+
+        /* ปุ่มเริ่มเล่นในการ์ด */
+        .card-play-btn {
+            background: rgba(255,255,255,0.95); color: var(--text);
+            border-radius: 16px; padding: 14px; text-align: center;
+            font-weight: 700; font-size: 1.1rem;
+            margin-top: auto; position: relative; z-index: 2;
+            transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .level-card:hover .card-play-btn { background: white; color: inherit; transform: translateY(-2px); }
+        .lv1:hover .card-play-btn { color: var(--c1d); }
+        .lv2:hover .card-play-btn { color: var(--c2d); }
+        .lv3:hover .card-play-btn { color: var(--c3d); }
+        .lv4:hover .card-play-btn { color: var(--c4d); }
+        .lv5:hover .card-play-btn { color: var(--c5d); }
+
+        /* ตัวอักษรคันจิฉากหลัง */
+        .card-deco {
+            position: absolute; right: -15px; bottom: -30px;
+            font-size: 13rem; opacity: 0.12; pointer-events: none;
+            line-height: 1; font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 700; z-index: 1; transform: rotate(-10deg);
+        }
+
+        @keyframes cardEnter {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .back-btn { position: relative; top: 0; left: 0; margin-bottom: 20px; display: inline-flex; }
+            .page-header { text-align: left; padding: 2rem 1.5rem 6rem; }
+            .level-grid { flex-direction: column; }
+            .level-card { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
 
     <div class="page-header">
-        <div style="max-width:580px; margin:0 auto;">
-            <a href="{% url 'home' %}" class="back-btn mb-3 d-inline-flex align-items-center gap-2">
+        <span class="header-deco">5 LEVELS</span>
+        <div class="header-content">
+            <a href="{% url 'home' %}" class="back-btn">
                 <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
             </a>
-            <h1 class="mt-2 mb-1"><i class="fas fa-gamepad me-2"></i>เลือกด่านที่ต้องการ</h1>
-            <p class="mb-0 opacity-75 fw-600">ทั้งหมด 5 ด่าน · ทุกด่านมี 5 คำถาม</p>
+            <h1 class="header-title">เลือกด่านที่ต้องการฝึก</h1>
+            <p class="header-sub">พัฒนาภาษาญี่ปุ่นของคุณ ผ่านรูปแบบคำถามที่ท้าทาย</p>
         </div>
     </div>
 
-    <div class="container cards-wrap" style="max-width:580px; padding-bottom:3rem;">
+    <div class="cards-wrap">
+        <div class="level-grid">
 
-        <!-- Level 1 -->
-        <a href="{% url 'play_level' 1 %}" class="level-card lv1 mb-3" data-icon="①">
-            <span class="level-num-badge">Lv. 1</span>
-            <div class="level-info">
-                <p class="level-title">คำศัพท์ง่าย</p>
-                <p class="level-mode"><i class="fas fa-list me-1"></i>Multiple Choice · 4 ตัวเลือก</p>
-                <span class="level-diff">⭐ Easy</span>
-            </div>
-            <i class="fas fa-chevron-right opacity-75"></i>
-        </a>
+            <a href="{% url 'play_level' 1 %}" class="level-card lv1" style="animation-delay:0.1s">
+                <div class="card-header-top">
+                    <span class="card-num-badge">Lv. 1</span>
+                    <span class="diff-stars">⭐</span>
+                </div>
+                <h3 class="card-lv-title">คำศัพท์ง่าย</h3>
+                <div class="card-mode-tags">
+                    <span class="mode-tag"><i class="fas fa-check-circle"></i> Multiple Choice</span>
+                    <span class="mode-tag"><i class="fas fa-list-ul"></i> 4 ตัวเลือก</span>
+                </div>
+                <div class="card-play-btn">เริ่มเล่นด่านนี้</div>
+                <span class="card-deco" aria-hidden="true">易</span>
+            </a>
 
-        <!-- Level 2 -->
-        <a href="{% url 'play_level' 2 %}" class="level-card lv2 mb-3" data-icon="②">
-            <span class="level-num-badge">Lv. 2</span>
-            <div class="level-info">
-                <p class="level-title">คำศัพท์ยากขึ้น</p>
-                <p class="level-mode"><i class="fas fa-list me-1"></i>Multiple Choice · 4 ตัวเลือก</p>
-                <span class="level-diff">⭐⭐ Medium</span>
-            </div>
-            <i class="fas fa-chevron-right opacity-75"></i>
-        </a>
+            <a href="{% url 'play_level' 2 %}" class="level-card lv2" style="animation-delay:0.2s">
+                <div class="card-header-top">
+                    <span class="card-num-badge">Lv. 2</span>
+                    <span class="diff-stars">⭐⭐</span>
+                </div>
+                <h3 class="card-lv-title">คำศัพท์ยากขึ้น</h3>
+                <div class="card-mode-tags">
+                    <span class="mode-tag"><i class="fas fa-check-circle"></i> Multiple Choice</span>
+                    <span class="mode-tag"><i class="fas fa-list-ul"></i> 4 ตัวเลือก</span>
+                </div>
+                <div class="card-play-btn">เริ่มเล่นด่านนี้</div>
+                <span class="card-deco" aria-hidden="true">中</span>
+            </a>
 
-        <!-- Level 3 -->
-        <a href="{% url 'play_level' 3 %}" class="level-card lv3 mb-3" data-icon="③">
-            <span class="level-num-badge">Lv. 3</span>
-            <div class="level-info">
-                <p class="level-title">คำศัพท์ยาก · Mixed Mode</p>
-                <p class="level-mode"><i class="fas fa-keyboard me-1"></i>ข้อ 1–3: พิมพ์คำตอบ &nbsp;|&nbsp; ข้อ 4–5: เติมคำ</p>
-                <span class="level-diff">⭐⭐⭐ Hard</span>
-            </div>
-            <i class="fas fa-chevron-right opacity-75"></i>
-        </a>
+            <a href="{% url 'play_level' 3 %}" class="level-card lv3" style="animation-delay:0.3s">
+                <div class="card-header-top">
+                    <span class="card-num-badge">Lv. 3</span>
+                    <span class="diff-stars">⭐⭐⭐</span>
+                </div>
+                <h3 class="card-lv-title">คำศัพท์ยาก · Mixed</h3>
+                <div class="card-mode-tags">
+                    <span class="mode-tag"><i class="fas fa-keyboard"></i> พิมพ์คำตอบ ×3</span>
+                    <span class="mode-tag"><i class="fas fa-edit"></i> เติมคำ ×2</span>
+                </div>
+                <div class="card-play-btn">เริ่มเล่นด่านนี้</div>
+                <span class="card-deco" aria-hidden="true">難</span>
+            </a>
 
-        <!-- Level 4 -->
-        <a href="{% url 'play_level' 4 %}" class="level-card lv4 mb-3" data-icon="④">
-            <span class="level-num-badge">Lv. 4</span>
-            <div class="level-info">
-                <p class="level-title">เติมคำในประโยค</p>
-                <p class="level-mode"><i class="fas fa-fill-drip me-1"></i>Fill in the Blank · 5 ตัวเลือก</p>
-                <span class="level-diff">⭐⭐⭐ Hard</span>
-            </div>
-            <i class="fas fa-chevron-right opacity-75"></i>
-        </a>
+            <a href="{% url 'play_level' 4 %}" class="level-card lv4" style="animation-delay:0.4s">
+                <div class="card-header-top">
+                    <span class="card-num-badge">Lv. 4</span>
+                    <span class="diff-stars">⭐⭐⭐</span>
+                </div>
+                <h3 class="card-lv-title">เติมคำในประโยค</h3>
+                <div class="card-mode-tags">
+                    <span class="mode-tag"><i class="fas fa-edit"></i> Fill in the Blank</span>
+                    <span class="mode-tag"><i class="fas fa-list-ul"></i> 5 ตัวเลือก</span>
+                </div>
+                <div class="card-play-btn">เริ่มเล่นด่านนี้</div>
+                <span class="card-deco" aria-hidden="true">克</span>
+            </a>
 
-        <!-- Level 5 -->
-        <a href="{% url 'play_level' 5 %}" class="level-card lv5 mb-3" data-icon="⑤">
-            <span class="level-num-badge">Lv. 5</span>
-            <div class="level-info">
-                <p class="level-title">เรียงประโยค</p>
-                <p class="level-mode"><i class="fas fa-random me-1"></i>Word Bank · เรียงคำจากภาษาไทย → ญี่ปุ่น</p>
-                <span class="level-diff">⭐⭐⭐⭐ Expert</span>
-            </div>
-            <i class="fas fa-chevron-right opacity-75"></i>
-        </a>
+            <a href="{% url 'play_level' 5 %}" class="level-card lv5" style="animation-delay:0.5s">
+                <div class="card-header-top">
+                    <span class="card-num-badge">Lv. 5</span>
+                    <span class="diff-stars">⭐⭐⭐⭐</span>
+                </div>
+                <h3 class="card-lv-title">เรียงประโยค</h3>
+                <div class="card-mode-tags">
+                    <span class="mode-tag"><i class="fas fa-random"></i> Word Bank</span>
+                    <span class="mode-tag"><i class="fas fa-language"></i> แปลไทย → ญี่ปุ่น</span>
+                </div>
+                <div class="card-play-btn">เริ่มเล่นด่านนี้</div>
+                <span class="card-deco" aria-hidden="true">極</span>
+            </a>
 
-        {% if not levels %}
-        <div class="text-center py-5 text-muted">
-            <i class="fas fa-exclamation-circle fa-2x mb-3 d-block text-warning"></i>
-            ยังไม่มีด่านในระบบ กรุณาเพิ่มข้อมูลผ่าน Admin
         </div>
-        {% endif %}
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

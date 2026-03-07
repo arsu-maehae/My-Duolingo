@@ -10,19 +10,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+Japanese:wght@400;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* ═══════════════════════════════════════════════════
-           Base
+           Design Tokens
         ═══════════════════════════════════════════════════ */
         :root {
-            --blue:     #1cb0f6;
-            --blue-dk:  #1899d6;
-            --green:    #58cc02;
-            --green-dk: #58a700;
-            --red:      #ff4b4b;
-            --red-dk:   #d33030;
-            --yellow:   #ffc800;
-            --orange:   #ff9600;
-            --bg:       #f4f7f6;
-            --card-r:   24px;
+            --blue:       #1cb0f6;
+            --blue-dk:    #1899d6;
+            --blue-lt:    #e8f6fe;
+            --green:      #58cc02;
+            --green-dk:   #45a800;
+            --green-lt:   #d7ffb8;
+            --red:        #ff4b4b;
+            --red-dk:     #d33030;
+            --red-lt:     #ffdfe0;
+            --yellow:     #ffc800;
+            --yellow-lt:  #fff8e0;
+            --orange:     #ff9600;
+            --bg:         #f0f4f8;
+            --surface:    #ffffff;
+            --border:     #e2e8f0;
+            --text-dark:  #1e293b;
+            --text-mid:   #64748b;
+            --text-light: #94a3b8;
+            --radius-sm:  10px;
+            --radius-md:  16px;
+            --radius-lg:  24px;
+            --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md:  0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-lg:  0 10px 30px rgba(0,0,0,0.09), 0 4px 8px rgba(0,0,0,0.05);
         }
         * { box-sizing: border-box; }
         body {
@@ -30,229 +44,370 @@
             background: var(--bg);
             min-height: 100vh;
             margin: 0;
+            color: var(--text-dark);
         }
 
         /* ═══════════════════════════════════════════════════
-           Top navigation / progress bar
+           Top Navigation
         ═══════════════════════════════════════════════════ */
         .game-nav {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.25rem;
+            gap: 12px;
+            padding: 14px 16px 12px;
             position: sticky;
             top: 0;
             z-index: 100;
             background: var(--bg);
         }
         #btn-close-page {
-            color: #ccc;
-            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            color: var(--text-light);
+            font-size: 0.9rem;
             text-decoration: none;
             flex-shrink: 0;
-            transition: color 0.2s;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            box-shadow: var(--shadow-sm);
         }
-        #btn-close-page:hover { color: #888; }
-        .progress-track {
+        #btn-close-page:hover {
+            background: #f8d7d7;
+            border-color: #f5a0a0;
+            color: var(--red);
+        }
+        .progress-wrap {
             flex: 1;
-            height: 12px;
-            background: #e5e5e5;
-            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .progress-track {
+            height: 14px;
+            background: #dde3ea;
+            border-radius: 50px;
             overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
         }
         #progress-bar {
             height: 100%;
-            background: var(--green);
-            border-radius: 10px;
+            background: linear-gradient(90deg, var(--green) 0%, #7dde1c 100%);
+            border-radius: 50px;
             width: 0%;
-            transition: width 0.5s ease;
+            transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        #progress-bar::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 2px; bottom: 2px;
+            width: 6px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50px;
         }
         #progress-text {
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             font-weight: 700;
-            color: #aaa;
+            color: var(--text-light);
+            text-align: right;
+            letter-spacing: 0.02em;
+        }
+        .nav-lives {
+            display: flex;
+            align-items: center;
+            gap: 3px;
             flex-shrink: 0;
         }
 
         /* ═══════════════════════════════════════════════════
-           Quiz card
+           Level Badge
+        ═══════════════════════════════════════════════════ */
+        .level-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 10px 16px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-sm);
+        }
+        .level-badge-icon {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        .level-badge-text { flex: 1; }
+        .level-badge-num {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .level-badge-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           Quiz Card
         ═══════════════════════════════════════════════════ */
         #quiz-card {
-            background: white;
-            border-radius: var(--card-r);
-            border: 2px solid #e8e8e8;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
-            padding: 2rem 1.75rem;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        /* Colored top stripe changes by mode via JS class or static */
+        .card-header-stripe {
+            height: 5px;
+            background: linear-gradient(90deg, var(--blue) 0%, #5577ff 100%);
+            background-size: 200% 100%;
+        }
+
+        .card-body {
+            padding: 1.5rem 1.6rem 1.6rem;
         }
 
         /* Mode label */
         #mode-label {
-            display: inline-block;
-            background: #f0f4f8;
-            color: #555;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             border-radius: 50px;
-            padding: 4px 14px;
-            font-size: 0.75rem;
+            padding: 4px 12px;
+            font-size: 0.72rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin-bottom: 1.2rem;
+            letter-spacing: 0.07em;
+            margin-bottom: 1.25rem;
+            background: #eef2ff;
+            color: #4f46e5;
+            border: 1.5px solid #c7d2fe;
         }
 
-        /* TTS button */
+        /* ─── Word / Question Display ─── */
+        .question-display {
+            background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
+            border: 1.5px solid #e0e7ff;
+            border-radius: var(--radius-md);
+            padding: 1.5rem 1.25rem 1.1rem;
+            text-align: center;
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
         #btn-speak {
-            width: 80px; height: 80px;
+            width: 60px; height: 60px;
             border-radius: 50%;
-            background: #f0f8ff;
-            border: 2px solid #d5eaf8;
+            background: white;
+            border: 2px solid var(--border);
             color: var(--blue);
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            transition: transform 0.15s, background 0.15s;
-            margin: 0 auto 1rem;
+            transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+            margin: 0 auto 12px;
+            box-shadow: var(--shadow-sm);
         }
-        #btn-speak:hover { background: #ddf0ff; transform: scale(1.06); }
-        #btn-speak:active { transform: scale(0.95); }
-        #btn-speak.speaking { animation: pulse-blue 0.8s ease-in-out infinite alternate; }
+        #btn-speak:hover { background: var(--blue-lt); border-color: var(--blue); transform: scale(1.06); box-shadow: 0 4px 12px rgba(28,176,246,0.25); }
+        #btn-speak:active { transform: scale(0.93); }
+        #btn-speak.speaking { animation: pulse-blue 0.9s ease-in-out infinite alternate; border-color: var(--blue); background: var(--blue-lt); }
         @keyframes pulse-blue {
-            from { box-shadow: 0 0 0 0 rgba(28,176,246,0.5); }
-            to   { box-shadow: 0 0 0 14px rgba(28,176,246,0); }
+            from { box-shadow: 0 0 0 0 rgba(28,176,246,0.4); }
+            to   { box-shadow: 0 0 0 16px rgba(28,176,246,0); }
         }
 
-        /* Japanese word display */
         #jp-text {
-            font-family: 'Noto Sans Japanese', 'Fredoka', sans-serif;
-            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-family: 'Noto Sans Japanese', sans-serif;
+            font-size: clamp(2rem, 9vw, 3.6rem);
             font-weight: 700;
-            color: #2c3e50;
-            line-height: 1.1;
-            letter-spacing: 2px;
+            color: var(--text-dark);
+            line-height: 1.15;
+            letter-spacing: 3px;
+            display: block;
         }
 
         /* Reading hint */
         #hint-box {
             cursor: pointer;
-            min-height: 38px;
+            min-height: 34px;
             position: relative;
-            margin: 0.5rem 0 1.5rem;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         #hint-prompt {
-            background: #f7f7f7;
-            border: 1.5px solid #eee;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: white;
+            border: 1.5px solid var(--border);
             border-radius: 50px;
-            padding: 5px 18px;
-            font-size: 0.82rem;
-            color: #999;
+            padding: 4px 14px;
+            font-size: 0.78rem;
+            color: var(--text-light);
             font-weight: 600;
-            transition: opacity 0.25s;
-            display: inline-block;
+            transition: opacity 0.2s, transform 0.2s;
+            box-shadow: var(--shadow-sm);
         }
-        #hint-prompt i { color: var(--yellow); }
+        #hint-prompt i { color: var(--yellow); font-size: 0.82rem; }
+        #hint-box:hover #hint-prompt { background: var(--yellow-lt); border-color: var(--yellow); color: #b37800; }
         #jp-reading {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 700;
             color: var(--blue);
             opacity: 0;
             transition: opacity 0.25s;
             position: absolute;
             width: 100%;
-            left: 0;
-            top: 2px;
+            text-align: center;
             pointer-events: none;
+            letter-spacing: 1px;
         }
         #hint-box.revealed #hint-prompt { opacity: 0; pointer-events: none; }
         #hint-box.revealed #jp-reading  { opacity: 1; }
 
-        /* ═══════════════════════════════════════════════════
-           MODE CONTAINERS (all hidden by default)
-        ═══════════════════════════════════════════════════ */
+        /* ─── Section Label ─── */
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
 
-        /* ── Mode A: Multiple Choice ── */
+        /* ═══════════════════════════════════════════════════
+           MODE A: Multiple Choice
+        ═══════════════════════════════════════════════════ */
         #mc-container { display: none; }
         .mc-grid {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 8px;
+            gap: 9px;
         }
         .mc-btn {
             width: 100%;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-bottom: 4px solid #cacaca;
-            border-radius: 16px;
-            padding: 16px 20px;
-            font-size: 1.05rem;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-bottom: 4px solid #d0d8e4;
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            font-size: 1rem;
             font-weight: 600;
-            color: #3c3c3c;
+            color: var(--text-dark);
             cursor: pointer;
-            transition: border-color 0.15s, background 0.15s, transform 0.08s;
+            transition: border-color 0.15s, background 0.15s, transform 0.08s, box-shadow 0.15s;
             text-align: left;
             font-family: 'Noto Sans Thai', sans-serif;
             display: flex;
             align-items: center;
-            gap: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            gap: 13px;
         }
-        .mc-btn::before {
-            content: attr(data-letter);
+        .mc-btn-letter {
             flex-shrink: 0;
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             border-radius: 8px;
-            border: 2px solid #d0d0d0;
+            border: 2px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #888;
-            background: #f5f5f5;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--text-mid);
+            background: #f8fafc;
             transition: background 0.15s, border-color 0.15s, color 0.15s;
+            font-family: 'Fredoka', sans-serif;
+            letter-spacing: 0;
         }
-        .mc-btn:hover:not(:disabled) { border-color: var(--blue); background: #f0f9ff; transform: translateY(-1px); }
-        .mc-btn:hover:not(:disabled)::before { border-color: var(--blue); color: var(--blue); background: #dff0ff; }
+        .mc-btn-text { flex: 1; }
+        .mc-btn:hover:not(:disabled) {
+            border-color: var(--blue);
+            background: var(--blue-lt);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(28,176,246,0.13);
+        }
+        .mc-btn:hover:not(:disabled) .mc-btn-letter { border-color: var(--blue); color: var(--blue); background: #dff0ff; }
         .mc-btn:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; }
-        .mc-btn.selected  { border-color: var(--blue); background: #e8f6fe; color: #0d6efd; }
-        .mc-btn.selected::before { border-color: var(--blue); background: var(--blue); color: white; }
-        .mc-btn.correct   { border-color: var(--green); background: #d7ffb8; color: #2b7a0b; pointer-events: none; }
-        .mc-btn.correct::before { border-color: var(--green); background: var(--green); color: white; }
-        .mc-btn.incorrect { border-color: var(--red); background: #ffe0e0; color: var(--red); pointer-events: none; }
-        .mc-btn.incorrect::before { border-color: var(--red); background: var(--red); color: white; }
-        .mc-btn:disabled  { cursor: not-allowed; opacity: 0.7; }
+        .mc-btn.selected  { border-color: var(--blue); background: var(--blue-lt); color: #0369a1; border-bottom: 4px solid #0ea5e9; }
+        .mc-btn.selected .mc-btn-letter { border-color: var(--blue); background: var(--blue); color: white; }
+        .mc-btn.correct   { border-color: var(--green); background: var(--green-lt); color: #166534; border-bottom: 4px solid var(--green-dk); pointer-events: none; }
+        .mc-btn.correct .mc-btn-letter { border-color: var(--green-dk); background: var(--green); color: white; }
+        .mc-btn.incorrect { border-color: var(--red); background: var(--red-lt); color: var(--red-dk); border-bottom: 4px solid var(--red-dk); pointer-events: none; }
+        .mc-btn.incorrect .mc-btn-letter { border-color: var(--red-dk); background: var(--red); color: white; }
+        .mc-btn:disabled  { cursor: not-allowed; }
 
-        /* ── Mode B: Type Answer ── */
+        /* ═══════════════════════════════════════════════════
+           MODE B: Type Answer
+        ═══════════════════════════════════════════════════ */
         #type-container { display: none; }
+        .type-inner {
+            position: relative;
+        }
+        .type-inner::before {
+            content: '✏️';
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            pointer-events: none;
+            z-index: 1;
+        }
         #answer-input {
-            border: 2px solid #e0e0e0;
-            border-radius: 16px;
-            background: #f9f9f9;
-            font-size: 1.2rem;
+            border: 2px solid var(--border);
+            border-bottom: 4px solid #d0d8e4;
+            border-radius: var(--radius-md);
+            background: #f8fafc;
+            font-size: 1.15rem;
             text-align: center;
-            padding: 14px;
+            padding: 15px 18px 15px 44px;
             width: 100%;
             outline: none;
-            transition: border-color 0.2s, background 0.2s;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
             font-family: 'Noto Sans Thai', sans-serif;
+            color: var(--text-dark);
+            font-weight: 600;
         }
-        #answer-input:focus { border-color: var(--blue); background: white; }
-        #answer-input.correct   { border-color: var(--green); background: #d7ffb8; }
-        #answer-input.incorrect { border-color: var(--red);   background: #ffe0e0; }
+        #answer-input::placeholder { color: var(--text-light); font-weight: 500; }
+        #answer-input:focus {
+            border-color: var(--blue);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(28,176,246,0.12);
+        }
+        #answer-input.correct   { border-color: var(--green); background: var(--green-lt); color: #166534; }
+        #answer-input.incorrect { border-color: var(--red);   background: var(--red-lt);   color: var(--red-dk); }
 
-        /* ── Mode C: Fill in the Blank ── */
+        /* ═══════════════════════════════════════════════════
+           MODE C: Fill in the Blank
+        ═══════════════════════════════════════════════════ */
         #fill-blank-container { display: none; }
         #fill-sentence-display {
-            font-size: 1.5rem;
-            line-height: 1.8;
-            color: #2c3e50;
-            background: #f7f7f7;
-            border-radius: 16px;
-            padding: 1.1rem 1.4rem;
+            font-size: 1.4rem;
+            line-height: 1.9;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
+            border: 1.5px solid #e0e7ff;
+            border-radius: var(--radius-md);
+            padding: 1.1rem 1.25rem;
             font-family: 'Noto Sans Thai', sans-serif;
-            margin-bottom: 1rem;
+            margin-bottom: 14px;
             text-align: center;
         }
         .blank-slot {
@@ -261,65 +416,100 @@
             border-bottom: 3px solid var(--blue);
             color: var(--blue);
             font-weight: 700;
-            padding: 0 8px;
+            padding: 0 8px 2px;
             text-align: center;
+            background: rgba(28,176,246,0.06);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.2s;
         }
         #fill-th-hint {
-            font-size: 0.82rem;
-            color: #888;
-            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 12px;
             font-style: italic;
         }
         #fill-word-bank {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 9px;
             justify-content: center;
         }
 
-        /* ── Mode D: Sentence Sort ── */
+        /* ═══════════════════════════════════════════════════
+           MODE D: Sentence Sort
+        ═══════════════════════════════════════════════════ */
         #sort-container { display: none; }
         #sort-prompt {
-            background: #f0f8e8;
-            border: 2px solid #d4f0b6;
-            border-radius: 16px;
-            padding: 1rem 1.4rem;
-            font-size: 1rem;
-            color: #2b7a0b;
+            background: #f0fdf4;
+            border: 1.5px solid #bbf7d0;
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            color: #166534;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 12px;
             text-align: center;
         }
-        #sort-prompt .label {
-            font-size: 0.72rem;
+        .sort-answer-label {
+            font-size: 0.7rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #5aa800;
-            display: block;
-            margin-bottom: 4px;
+            letter-spacing: 0.07em;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sort-answer-label::before,
+        .sort-answer-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
         }
         #sort-answer-zone {
-            min-height: 60px;
-            border: 2px dashed #c8c8c8;
-            border-radius: 16px;
-            background: #fafafa;
+            min-height: 62px;
+            border: 2px dashed #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #f8fafc;
             padding: 10px 12px;
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             align-items: center;
             justify-content: center;
-            margin-bottom: 0.75rem;
-            transition: border-color 0.2s;
+            margin-bottom: 12px;
+            transition: border-color 0.25s, background 0.25s;
         }
-        #sort-answer-zone.correct   { border-color: var(--green); background: #d7ffb8; }
-        #sort-answer-zone.incorrect { border-color: var(--red);   background: #ffe0e0; }
+        #sort-answer-zone:has(.word-tile) { border-style: solid; border-color: #94a3b8; background: white; }
+        #sort-answer-zone.correct   { border-style: solid; border-color: var(--green); background: var(--green-lt); }
+        #sort-answer-zone.incorrect { border-style: solid; border-color: var(--red);   background: var(--red-lt); }
         #sort-answer-zone .placeholder-text {
-            color: #bbb;
-            font-size: 0.85rem;
+            color: #c0ccd8;
+            font-size: 0.82rem;
             pointer-events: none;
+            font-style: italic;
         }
-        .sort-divider { border: none; border-top: 2px solid #eee; margin: 0.75rem 0; }
+        .sort-tile-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sort-tile-label::before,
+        .sort-tile-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .sort-divider { display: none; }
         #sort-tile-bank {
             display: flex;
             flex-wrap: wrap;
@@ -330,147 +520,241 @@
         /* ─── Shared word-tile buttons ─── */
         .word-tile {
             background: white;
-            border: 2px solid #d8d8d8;
-            border-bottom: 4px solid #c8c8c8;
-            border-radius: 12px;
-            padding: 8px 16px;
-            font-size: 0.95rem;
+            border: 2px solid var(--border);
+            border-bottom: 4px solid #d0d8e4;
+            border-radius: var(--radius-sm);
+            padding: 8px 15px;
+            font-size: 0.92rem;
             font-weight: 600;
-            color: #3c3c3c;
+            color: var(--text-dark);
             cursor: pointer;
-            transition: border-color 0.12s, transform 0.08s, background 0.12s;
+            transition: border-color 0.12s, transform 0.08s, background 0.12s, box-shadow 0.12s;
             font-family: 'Noto Sans Thai', 'Noto Sans Japanese', sans-serif;
+            box-shadow: var(--shadow-sm);
         }
-        .word-tile:hover:not(:disabled) { border-color: var(--blue); background: #f0f9ff; transform: translateY(-2px); }
+        .word-tile:hover:not(:disabled) {
+            border-color: var(--blue);
+            background: var(--blue-lt);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(28,176,246,0.15);
+        }
         .word-tile:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; }
-        .word-tile.in-answer { border-color: #58cc02; background: #e8ffe0; color: #2b7a0b; }
-        .word-tile:disabled { opacity: 0.45; cursor: not-allowed; }
+        .word-tile.in-answer {
+            border-color: var(--green);
+            border-bottom-color: var(--green-dk);
+            background: var(--green-lt);
+            color: #166534;
+        }
+        .word-tile:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
         /* ═══════════════════════════════════════════════════
-           Feedback area
+           Feedback Banner
         ═══════════════════════════════════════════════════ */
         #feedback-area {
-            border-radius: 16px;
-            border: none;
-            font-weight: 600;
-            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            padding: 13px 16px;
             display: none;
+            margin-top: 14px;
         }
-        #feedback-area.show { display: flex; align-items: flex-start; gap: 12px; }
-        #feedback-area.feedback-correct {
-            background: #d7ffb8;
-            color: #2b7a0b;
+        #feedback-area.show {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: feedbackSlide 0.3s ease both;
         }
-        #feedback-area.feedback-incorrect {
-            background: #ffdfe0;
-            color: #ea2b2b;
+        @keyframes feedbackSlide {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
-        #feedback-area.feedback-retry {
-            background: #fff0cc;
-            color: #c95100;
-        }
-        #feedback-area .fb-icon { font-size: 1.5rem; flex-shrink: 0; }
-        #feedback-area .fb-body {}
-        #feedback-area .fb-title { font-size: 0.95rem; font-weight: 700; margin: 0 0 2px; }
-        #feedback-area .fb-detail { font-size: 0.82rem; opacity: 0.85; margin: 0; }
+        #feedback-area.feedback-correct  { background: var(--green-lt);  border: 1.5px solid #86efac; color: #166534; }
+        #feedback-area.feedback-incorrect { background: var(--red-lt);   border: 1.5px solid #fca5a5; color: var(--red-dk); }
+        #feedback-area.feedback-retry    { background: var(--yellow-lt); border: 1.5px solid #fcd34d; color: #92400e; }
+        .fb-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+        .fb-body { flex: 1; }
+        .fb-title { font-size: 0.95rem; font-weight: 800; margin: 0 0 2px; }
+        .fb-detail { font-size: 0.83rem; opacity: 0.85; margin: 0; line-height: 1.4; }
 
         /* ═══════════════════════════════════════════════════
            Action buttons
         ═══════════════════════════════════════════════════ */
+        #action-btn-wrap {
+            padding: 0 4px 8px;
+        }
         .btn-game {
             border: none;
-            font-weight: 700;
-            font-size: 1.1rem;
-            padding: 15px;
-            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            padding: 16px;
+            border-radius: var(--radius-lg);
             width: 100%;
-            transition: transform 0.08s, box-shadow 0.08s;
+            transition: transform 0.08s, box-shadow 0.08s, opacity 0.2s;
             font-family: 'Noto Sans Thai', sans-serif;
             cursor: pointer;
+            letter-spacing: 0.02em;
         }
         .btn-game:active { transform: translateY(3px); }
 
         #btn-check {
-            background: var(--blue);
+            background: linear-gradient(180deg, #35bbf8 0%, var(--blue) 100%);
             color: white;
-            box-shadow: 0 5px 0 var(--blue-dk);
+            box-shadow: 0 5px 0 var(--blue-dk), 0 2px 8px rgba(28,176,246,0.3);
         }
         #btn-check:active { box-shadow: 0 2px 0 var(--blue-dk); }
         #btn-check:disabled {
-            background: #e5e5e5;
-            color: #aaa;
-            box-shadow: 0 5px 0 #ccc;
+            background: #e2e8f0;
+            color: #94a3b8;
+            box-shadow: 0 4px 0 #c8d3de;
             cursor: not-allowed;
         }
         #btn-next {
-            background: var(--green);
+            background: linear-gradient(180deg, #6bd601 0%, var(--green) 100%);
             color: white;
-            box-shadow: 0 5px 0 var(--green-dk);
+            box-shadow: 0 5px 0 var(--green-dk), 0 2px 8px rgba(88,204,2,0.3);
             display: none;
         }
         #btn-next:active { box-shadow: 0 2px 0 var(--green-dk); }
 
         /* ═══════════════════════════════════════════════════
-           Result screen
+           Result Screen
         ═══════════════════════════════════════════════════ */
         #result-screen {
             display: none;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: fadeScaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        @keyframes fadeScaleIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .result-top {
+            padding: 2.5rem 2rem 2rem;
+            text-align: center;
+            background: linear-gradient(160deg, #f0f4ff 0%, #fff 60%);
+            border-bottom: 2px solid var(--border);
+        }
+        .result-stars { font-size: 2.8rem; letter-spacing: 5px; margin-bottom: 10px; line-height: 1; }
+        #result-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+        .score-ring {
+            width: 110px; height: 110px;
+            border-radius: 50%;
+            background: conic-gradient(var(--green) var(--pct, 0%), #e2e8f0 0%);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 12px;
+            position: relative;
+        }
+        .score-ring::before {
+            content: '';
+            position: absolute;
+            inset: 10px;
             background: white;
-            border-radius: var(--card-r);
-            border: 2px solid #e8e8e8;
-            box-shadow: 0 6px 30px rgba(0,0,0,0.07);
-            padding: 3rem 2rem;
+            border-radius: 50%;
+        }
+        .score-ring-inner {
+            position: relative;
+            z-index: 1;
             text-align: center;
         }
-        .result-stars { font-size: 3rem; letter-spacing: 4px; margin-bottom: 1rem; }
-        #result-title { font-family: 'Fredoka', sans-serif; font-size: 1.8rem; font-weight: 700; color: #2c3e50; }
-        #score-display { font-family: 'Fredoka', sans-serif; font-size: 4rem; font-weight: 700; }
-        .score-correct   { color: var(--green); }
-        .score-separator { color: #ccc; margin: 0 4px; }
-        .score-total     { color: #aaa; font-size: 2.5rem; }
+        #final-score {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .score-total-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-mid);
+            letter-spacing: 0.04em;
+        }
+        .score-correct  { color: var(--green); }
+        .score-fail     { color: var(--red); }
+        #result-msg {
+            font-size: 0.92rem;
+            color: var(--text-mid);
+        }
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-bottom: 2px solid var(--border);
+        }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 1.4rem; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-dark); }
+        .stat-label { font-size: 0.7rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; }
+        .result-actions {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
         #btn-retry-game {
-            background: var(--red);
+            background: linear-gradient(180deg, #ff6b6b 0%, var(--red) 100%);
             color: white;
             box-shadow: 0 5px 0 var(--red-dk);
             display: none;
         }
+        #btn-retry-game:active { box-shadow: 0 2px 0 var(--red-dk); }
         #btn-finish-game {
-            background: var(--blue);
+            background: linear-gradient(180deg, #35bbf8 0%, var(--blue) 100%);
             color: white;
             box-shadow: 0 5px 0 var(--blue-dk);
         }
+        #btn-finish-game:active { box-shadow: 0 2px 0 var(--blue-dk); }
 
         /* ═══════════════════════════════════════════════════
-           Slide-in animation
+           Animations
         ═══════════════════════════════════════════════════ */
         @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(40px); }
+            from { opacity: 0; transform: translateX(36px); }
             to   { opacity: 1; transform: translateX(0); }
         }
-        .slide-in { animation: slideInRight 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) both; }
+        .slide-in { animation: slideInRight 0.32s cubic-bezier(0.25, 0.8, 0.25, 1) both; }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20%       { transform: translateX(-8px); }
-            40%       { transform: translateX(8px); }
-            60%       { transform: translateX(-5px); }
-            80%       { transform: translateX(5px); }
+            18%       { transform: translateX(-9px); }
+            36%       { transform: translateX(9px); }
+            54%       { transform: translateX(-6px); }
+            72%       { transform: translateX(6px); }
         }
-        .shake { animation: shake 0.4s ease both; }
+        .shake { animation: shake 0.42s ease both; }
+
+        /* ═══════════════════════════════════════════════════
+           Responsive tweaks
+        ═══════════════════════════════════════════════════ */
+        @media (max-width: 400px) {
+            .card-body { padding: 1.2rem 1.1rem 1.3rem; }
+            #jp-text { font-size: clamp(1.7rem, 11vw, 3rem); }
+            .mc-btn { padding: 12px 14px; font-size: 0.95rem; }
+        }
     </style>
 </head>
 <body>
-<div class="container py-2" style="max-width:640px;">
+<div class="container py-2" style="max-width:600px;">
 
     <!-- ── Navigation bar ── -->
     <nav class="game-nav px-0">
         <a href="{% url 'play_home' %}" id="btn-close-page" title="ออกจากเกม">
             <i class="fas fa-times"></i>
         </a>
-        <div class="progress-track">
-            <div id="progress-bar"></div>
+        <div class="progress-wrap">
+            <div class="progress-track">
+                <div id="progress-bar"></div>
+            </div>
+            <div id="progress-text">1 / {{ questions_data|length }}</div>
         </div>
-        <span id="progress-text">1 / 5</span>
     </nav>
 
     <!-- ── Error state (no questions) ── -->
@@ -486,124 +770,155 @@
     </div>
     {% else %}
 
+    <!-- Level badge -->
+    <div class="level-badge mx-1">
+        <div class="level-badge-icon">
+            <i class="fas fa-torii-gate"></i>
+        </div>
+        <div class="level-badge-text">
+            <div class="level-badge-num">ด่านที่ {{ level.level_number }}</div>
+            <div class="level-badge-title">{{ level.title }}</div>
+        </div>
+    </div>
+
     <!-- ══════════════════════════════════════════
          QUIZ CARD
     ══════════════════════════════════════════ -->
-    <div id="quiz-card" class="mt-2 slide-in">
+    <div id="quiz-card" class="mx-1 slide-in">
+        <!-- Top color stripe -->
+        <div class="card-header-stripe"></div>
 
-        <!-- Mode label -->
-        <div class="text-center">
-            <span id="mode-label">กำลังโหลด…</span>
-        </div>
+        <div class="card-body">
 
-        <!-- TTS button -->
-        <div class="text-center">
-            <button id="btn-speak" title="ฟังการออกเสียง">
-                <i class="fas fa-volume-up"></i>
-            </button>
-        </div>
-
-        <!-- Japanese word / sentence -->
-        <div class="text-center mb-1">
-            <span id="jp-text">…</span>
-        </div>
-
-        <!-- Reading hint -->
-        <div id="hint-box" class="text-center" role="button" tabindex="0" aria-label="คลิกเพื่อดูคำอ่าน">
-            <span id="hint-prompt"><i class="fas fa-lightbulb"></i> ดูคำอ่าน</span>
-            <span id="jp-reading">…</span>
-        </div>
-
-        <!-- ─────────────────────────────────────────────────
-             MODE A: Multiple Choice (Level 1, 2)
-        ───────────────────────────────────────────────── -->
-        <div id="mc-container" class="mt-3">
-            <div class="mc-grid" id="mc-grid">
-                <!-- Injected by play.js -->
-            </div>
-        </div>
-
-        <!-- ─────────────────────────────────────────────────
-             MODE B: Type Answer (Level 3, Q1–Q3)
-        ───────────────────────────────────────────────── -->
-        <div id="type-container" class="mt-3 px-md-3">
-            <input
-                type="text"
-                id="answer-input"
-                placeholder="พิมพ์คำตอบภาษาไทย…"
-                autocomplete="off"
-                spellcheck="false"
-            >
-        </div>
-
-        <!-- ─────────────────────────────────────────────────
-             MODE C: Fill in the Blank (Level 3 Q4–5, Level 4)
-        ───────────────────────────────────────────────── -->
-        <div id="fill-blank-container" class="mt-3">
-            <!-- Sentence with blank -->
-            <div id="fill-sentence-display"></div>
-            <!-- Thai meaning hint -->
-            <p id="fill-th-hint" class="text-center"></p>
-            <!-- Word bank (choice tiles) -->
-            <div id="fill-word-bank"></div>
-        </div>
-
-        <!-- ─────────────────────────────────────────────────
-             MODE D: Sentence Sort (Level 5)
-        ───────────────────────────────────────────────── -->
-        <div id="sort-container" class="mt-3">
-            <!-- Thai prompt -->
-            <div id="sort-prompt">
-                <span class="label">เรียงคำเป็นประโยคภาษาญี่ปุ่น</span>
-                <span id="sort-prompt-text">…</span>
+            <!-- Mode label -->
+            <div class="text-center">
+                <span id="mode-label">กำลังโหลด…</span>
             </div>
 
-            <!-- Answer zone (drop tiles here) -->
-            <div id="sort-answer-zone" role="region" aria-label="วางคำที่นี่">
-                <span class="placeholder-text">กดคำด้านล่างเพื่อวางที่นี่</span>
+            <!-- Question display block -->
+            <div class="question-display">
+                <!-- TTS button -->
+                <button id="btn-speak" title="ฟังการออกเสียง">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+
+                <!-- Japanese word / sentence -->
+                <span id="jp-text">…</span>
+
+                <!-- Reading hint -->
+                <div id="hint-box" role="button" tabindex="0" aria-label="คลิกเพื่อดูคำอ่าน">
+                    <span id="hint-prompt"><i class="fas fa-eye"></i> ดูคำอ่าน</span>
+                    <span id="jp-reading">…</span>
+                </div>
             </div>
 
-            <hr class="sort-divider">
-
-            <!-- Tile bank -->
-            <div id="sort-tile-bank">
-                <!-- Injected by play.js -->
+            <!-- ─────────────────────────────────────────────────
+                 MODE A: Multiple Choice
+            ───────────────────────────────────────────────── -->
+            <div id="mc-container">
+                <div class="mc-grid" id="mc-grid">
+                    <!-- Injected by play.js -->
+                </div>
             </div>
-        </div>
 
-        <!-- ─────────────────────────────────────────────────
-             Feedback
-        ───────────────────────────────────────────────── -->
-        <div id="feedback-area" class="mt-3" role="alert" aria-live="polite">
-            <span class="fb-icon"></span>
-            <div class="fb-body">
-                <p class="fb-title"></p>
-                <p class="fb-detail"></p>
+            <!-- ─────────────────────────────────────────────────
+                 MODE B: Type Answer
+            ───────────────────────────────────────────────── -->
+            <div id="type-container">
+                <div class="type-inner">
+                    <input
+                        type="text"
+                        id="answer-input"
+                        placeholder="พิมพ์คำแปลภาษาไทย…"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                </div>
             </div>
-        </div>
 
+            <!-- ─────────────────────────────────────────────────
+                 MODE C: Fill in the Blank
+            ───────────────────────────────────────────────── -->
+            <div id="fill-blank-container">
+                <div id="fill-sentence-display"></div>
+                <p id="fill-th-hint" class="text-center"></p>
+                <div id="fill-word-bank"></div>
+            </div>
+
+            <!-- ─────────────────────────────────────────────────
+                 MODE D: Sentence Sort
+            ───────────────────────────────────────────────── -->
+            <div id="sort-container">
+                <div id="sort-prompt">
+                    <span class="label">เรียงคำเป็นประโยคภาษาญี่ปุ่น</span>
+                    <span id="sort-prompt-text">…</span>
+                </div>
+
+                <div class="sort-answer-label">วางคำเรียงที่นี่</div>
+                <div id="sort-answer-zone" role="region" aria-label="วางคำที่นี่">
+                    <span class="placeholder-text">แตะคำด้านล่างเพื่อวางที่นี่</span>
+                </div>
+
+                <hr class="sort-divider">
+
+                <div class="sort-tile-label">คำที่มีให้เลือก</div>
+                <div id="sort-tile-bank">
+                    <!-- Injected by play.js -->
+                </div>
+            </div>
+
+            <!-- ─────── Feedback ─────── -->
+            <div id="feedback-area" role="alert" aria-live="polite">
+                <span class="fb-icon"></span>
+                <div class="fb-body">
+                    <p class="fb-title"></p>
+                    <p class="fb-detail"></p>
+                </div>
+            </div>
+
+        </div><!-- /.card-body -->
     </div><!-- /#quiz-card -->
 
     <!-- ══════════════════════════════════════════
          ACTION BUTTONS
     ══════════════════════════════════════════ -->
-    <div id="action-btn-wrap" class="mt-4 px-1">
+    <div id="action-btn-wrap" class="mt-3 px-1">
         <button id="btn-check" class="btn-game" disabled>ตรวจสอบ</button>
-        <button id="btn-next"  class="btn-game mt-2">ดำเนินการต่อ →</button>
+        <button id="btn-next"  class="btn-game mt-2">ถัดไป <i class="fas fa-arrow-right ms-1"></i></button>
     </div>
 
     <!-- ══════════════════════════════════════════
          RESULT SCREEN
     ══════════════════════════════════════════ -->
-    <div id="result-screen" class="mt-3">
-        <div class="result-stars" id="result-stars">⭐⭐⭐</div>
-        <h2 id="result-title">บทเรียนเสร็จสมบูรณ์!</h2>
-        <div id="score-display" class="my-3">
-            <span id="final-score" class="score-correct">0</span><span class="score-separator">/</span><span class="score-total">5</span>
+    <div id="result-screen" class="mt-2 mx-1">
+        <div class="result-top">
+            <div class="result-stars" id="result-stars">⭐⭐⭐</div>
+            <h2 id="result-title">บทเรียนเสร็จสมบูรณ์!</h2>
+            <div class="score-ring">
+                <div class="score-ring-inner">
+                    <div id="final-score" class="score-correct">0</div>
+                    <div class="score-total-label">คะแนน</div>
+                </div>
+            </div>
+            <p id="result-msg" class="text-muted mb-0 mt-2"></p>
         </div>
-        <p id="result-msg" class="text-muted mb-4"></p>
 
-        <div class="d-flex flex-column gap-3">
+        <div class="result-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="stat-correct">0</div>
+                <div class="stat-label">ถูก</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-wrong">0</div>
+                <div class="stat-label">ผิด</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-total">0</div>
+                <div class="stat-label">ทั้งหมด</div>
+            </div>
+        </div>
+
+        <div class="result-actions">
             <button id="btn-retry-game" class="btn-game">🔄 ลองใหม่อีกครั้ง</button>
             <a href="{% url 'play_home' %}" id="btn-finish-game" class="btn-game text-decoration-none text-center">
                 เลือกด่านอื่น
@@ -619,14 +934,14 @@
 ══════════════════════════════════════════════════════════ -->
 {{ questions_data|json_script:"questions-data" }}
 <script>
-    const LEVEL_ID = {{ level_id }};
+    window.LEVEL_ID = {{ level_id }};
 </script>
 
 <!-- ══════════════════════════════════════════════════════════
      SCRIPTS
 ══════════════════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'lessons/js/play.js' %}?v={{ level_id }}"></script>
+<script type="module" src="{% static 'lessons/js/play.js' %}?v={{ level_id }}"></script>
 
 </body>
 </html>
