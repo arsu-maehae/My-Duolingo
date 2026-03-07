@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JP Learn · คลังคำศัพท์ {{ current_level }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+Thai:wght@300;400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ═══════════╡ TOKENS ╞═══════════ */
+        :root {
+            --n5:  #58cc02; --n5-dk: #3fa800; --n5-bg: #f0ffe4;
+            --n4:  #1cb0f6; --n4-dk: #0d92d6; --n4-bg: #e6f7ff;
+            --n3:  #ffc800; --n3-dk: #c99a00; --n3-bg: #fffbe6;
+            --n2:  #ff9600; --n2-dk: #df7f00; --n2-bg: #fff3e0;
+            --n1:  #ff4b4b; --n1-dk: #d33030; --n1-bg: #fff0f0;
+            --surface: #ffffff;
+            --bg:  #f4f6fb;
+            --text: #2c3e50;
+            --muted: #8a99a8;
+            --border: #eef0f4;
+            --r: 20px;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Noto Sans Thai', 'Noto Sans JP', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ─── HERO HEADER ─── */
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 0;
+            color: white;
+        }
+        .hero-inner {
+            position: relative;
+            z-index: 2;
+            padding: 1.2rem 2rem 1.5rem;
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        /* Decorative large JP characters */
+        .hero-deco {
+            position: absolute;
+            right: -30px;
+            bottom: -20px;
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 7rem;
+            font-weight: 700;
+            line-height: 1;
+            opacity: 0.1;
+            pointer-events: none;
+            user-select: none;
+            z-index: 1;
+            white-space: nowrap;
+        }
+        .hero-deco-top {
+            position: absolute;
+            left: -20px;
+            top: -20px;
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            opacity: 0.06;
+            pointer-events: none;
+            user-select: none;
+            z-index: 1;
+        }
+
+        .back-link {
+            color: rgba(255,255,255,.8);
+            text-decoration: none;
+            font-size: .88rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            transition: color .15s;
+            margin-bottom: 1.2rem;
+        }
+        .back-link:hover { color: white; }
+
+        .hero-level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .6rem;
+            background: rgba(255,255,255,.22);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(255,255,255,.3);
+            border-radius: 50px;
+            padding: .4rem 1.2rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .hero-level-badge .dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.9);
+            animation: blink 2s ease-in-out infinite;
+        }
+        @keyframes blink {
+            0%,100% { opacity: 1; } 50% { opacity: .4; }
+        }
+
+        .hero h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            margin: 0 0 .5rem;
+            line-height: 1.1;
+        }
+        .hero-sub {
+            font-size: .95rem;
+            opacity: .88;
+            margin: 0;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.4rem;
+            flex-wrap: wrap;
+        }
+        .hero-stat {
+            background: rgba(255,255,255,.18);
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 14px;
+            padding: .5rem 1.1rem;
+            font-size: .82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .hero-stat i { opacity: .85; }
+
+        /* gradient per level */
+        .hero-N5 { background: linear-gradient(135deg, #3fa800 0%, #58cc02 60%, #7de230 100%); }
+        .hero-N4 { background: linear-gradient(135deg, #0077cc 0%, #1cb0f6 60%, #5acfff 100%); }
+        .hero-N3 { background: linear-gradient(135deg, #c99a00 0%, #ffc800 60%, #ffe066 100%); }
+        .hero-N2 { background: linear-gradient(135deg, #c75000 0%, #ff9600 60%, #ffba52 100%); }
+        .hero-N1 { background: linear-gradient(135deg, #a01010 0%, #ff4b4b 60%, #ff8080 100%); }
+
+        /* ─── LEVEL TABS ─── */
+        .tabs-outer {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--bg);
+            padding: .75rem 0;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 16px rgba(0,0,0,.06);
+        }
+        .tabs-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            gap: .6rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .tabs-inner::-webkit-scrollbar { display: none; }
+
+        .ltab {
+            flex-shrink: 0;
+            text-decoration: none;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            padding: .55rem 1.5rem;
+            border-radius: 50px;
+            color: var(--muted);
+            background: var(--surface);
+            border: 2px solid var(--border);
+            transition: all .18s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+        .ltab:hover { border-color: #c5d0db; color: var(--text); transform: translateY(-1px); }
+        .ltab.active { color: white; border-color: transparent; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+
+        .ltab-N5.active { background: var(--n5); }
+        .ltab-N4.active { background: var(--n4); }
+        .ltab-N3.active { background: var(--n3); color: #5a3d00; }
+        .ltab-N2.active { background: var(--n2); }
+        .ltab-N1.active { background: var(--n1); }
+
+        .ltab .count-pill {
+            background: rgba(0,0,0,.12);
+            border-radius: 50px;
+            padding: 1px 8px;
+            font-size: .72rem;
+            font-weight: 700;
+        }
+        .ltab.active .count-pill { background: rgba(255,255,255,.25); }
+        .ltab-N3.active .count-pill { background: rgba(0,0,0,.1); }
+
+        /* ─── MAIN CONTENT AREA ─── */
+        .content-wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 1.8rem 1.5rem 5rem;
+        }
+
+        /* ─── WORD OF THE DAY CARD ─── */
+        .wotd-card {
+            border-radius: var(--r);
+            border: none;
+            padding: 1.5rem 1.8rem;
+            margin-bottom: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,.07);
+            position: relative;
+            overflow: hidden;
+        }
+        .wotd-card::before {
+            content: '今日の言葉';
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            opacity: .06;
+            pointer-events: none;
+        }
+        .wotd-icon {
+            width: 58px; height: 58px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+        .wotd-body { flex: 1; min-width: 0; }
+        .wotd-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; opacity: .65; margin-bottom: 2px; }
+        .wotd-word {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        .wotd-reading { font-size: .9rem; font-weight: 600; opacity: .75; }
+        .wotd-meaning { font-size: 1rem; font-weight: 600; margin-top: 2px; }
+        .wotd-speak {
+            flex-shrink: 0;
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0,0,0,.06);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background .15s, transform .12s;
+        }
+        .wotd-speak:hover { background: rgba(0,0,0,.12); transform: scale(1.1); }
+
+        .wotd-N5 { background: var(--n5-bg); color: #1a4d00; }
+        .wotd-N5 .wotd-icon { background: var(--n5); color: white; }
+        .wotd-N5 .wotd-speak { color: var(--n5-dk); }
+
+        .wotd-N4 { background: var(--n4-bg); color: #003e66; }
+        .wotd-N4 .wotd-icon { background: var(--n4); color: white; }
+        .wotd-N4 .wotd-speak { color: var(--n4-dk); }
+
+        .wotd-N3 { background: var(--n3-bg); color: #5a3d00; }
+        .wotd-N3 .wotd-icon { background: var(--n3); color: #5a3d00; }
+        .wotd-N3 .wotd-speak { color: var(--n3-dk); }
+
+        .wotd-N2 { background: var(--n2-bg); color: #6b2d00; }
+        .wotd-N2 .wotd-icon { background: var(--n2); color: white; }
+        .wotd-N2 .wotd-speak { color: var(--n2-dk); }
+
+        .wotd-N1 { background: var(--n1-bg); color: #700000; }
+        .wotd-N1 .wotd-icon { background: var(--n1); color: white; }
+        .wotd-N1 .wotd-speak { color: var(--n1-dk); }
+
+        /* ─── TOOLBAR ─── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 220px;
+            position: relative;
+        }
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: .95rem;
+            pointer-events: none;
+        }
+        #search-input {
+            width: 100%;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            padding: 11px 20px 11px 44px;
+            font-size: .95rem;
+            font-family: 'Noto Sans Thai', sans-serif;
+            color: var(--text);
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+        #search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .12);
+        }
+        #search-input::placeholder { color: #bbb; }
+
+        .count-badge {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 18px;
+            font-size: .85rem;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+        .count-num { font-size: 1.1rem; }
+
+        /* ─── TABLE ─── */
+        .table-shell {
+            background: var(--surface);
+            border-radius: var(--r);
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,.06);
+        }
+        .table-responsive { overflow-x: auto; }
+
+        .vocab-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            table-layout: fixed;
+        }
+        .vocab-table td, .vocab-table th {
+            overflow: hidden;
+        }
+        .vocab-table thead th {
+            background: #fafbfc;
+            padding: 14px 18px;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+        .vocab-table thead th:first-child { padding-left: 22px; }
+
+        .vocab-row { border-bottom: 1px solid var(--border); transition: background .12s; }
+        .vocab-row:last-child { border-bottom: none; }
+        .vocab-row:hover { background: #f7f9ff; }
+
+        .vocab-table td {
+            padding: 14px 18px;
+            vertical-align: middle;
+        }
+        .vocab-table td:first-child { padding-left: 22px; }
+
+        /* Row num */
+        .td-num {
+            width: 50px;
+            text-align: center;
+            font-size: .75rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* Word cell */
+        .td-word { min-width: 130px; max-width: 160px; }
+        .word-stack { display: flex; flex-direction: column; gap: 1px; }
+        .jp-word {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .jp-reading {
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Meaning */
+        .td-meaning { min-width: 160px; max-width: 220px; }
+        .th-meaning {
+            font-size: .95rem;
+            font-weight: 600;
+            color: #3a3a3a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .en-meaning {
+            font-size: .75rem;
+            color: var(--muted);
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Sentence cells */
+        .td-sent { min-width: 200px; max-width: 300px; }
+        .sentence-jp {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: .9rem;
+            color: #3c3c3c;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+        .sentence-th {
+            font-size: .82rem;
+            color: var(--muted);
+            font-style: italic;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
+        /* Audio */
+        .td-audio { width: 60px; text-align: center; }
+        .btn-audio {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: #f5f7fa;
+            color: var(--accent);
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: background .15s, color .15s, transform .12s, border-color .15s;
+            font-size: .85rem;
+        }
+        .btn-audio:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            transform: scale(1.12);
+        }
+        .btn-audio.playing {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            animation: audio-pulse .6s ease-in-out infinite alternate;
+        }
+        @keyframes audio-pulse {
+            from { box-shadow: 0 0 0 0 rgba(0,0,0,.2); }
+            to   { box-shadow: 0 0 0 7px rgba(0,0,0,0); }
+        }
+
+        /* Hide sentences on small screens */
+        .hide-sm { display: table-cell; }
+        @media (max-width: 900px) { .hide-sm { display: none !important; } }
+
+        /* ─── EMPTY STATE ─── */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--muted);
+        }
+        .empty-state .big-char {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 4rem;
+            opacity: .25;
+            display: block;
+            margin-bottom: .5rem;
+        }
+
+        /* ─── LEVEL-SPECIFIC ACCENT VARS ─── */
+        .accent-N5 { --accent: #58cc02; --accent-rgb: 88,204,2; }
+        .accent-N4 { --accent: #1cb0f6; --accent-rgb: 28,176,246; }
+        .accent-N3 { --accent: #e0b000; --accent-rgb: 224,176,0; }
+        .accent-N2 { --accent: #ff9600; --accent-rgb: 255,150,0; }
+        .accent-N1 { --accent: #ff4b4b; --accent-rgb: 255,75,75; }
+
+        /* focus visible for a11y */
+        .ltab:focus-visible,
+        .btn-audio:focus-visible,
+        #search-input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    </style>
+</head>
+
+<body class="accent-{{ current_level }}">
+
+<!-- ══════════════════════════════════ HERO ══════════════════════════════════ -->
+<header class="hero hero-{{ current_level }}">
+    <span class="hero-deco-top">日本語</span>
+    <span class="hero-deco">
+        {% if current_level == "N5" %}言葉{% elif current_level == "N4" %}単語{% elif current_level == "N3" %}語彙{% elif current_level == "N2" %}漢字{% else %}文字{% endif %}
+    </span>
+    <div class="hero-inner">
+        <a href="{% url 'home' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
+        </a>
+
+        <div class="hero-level-badge">
+            <span class="dot"></span>
+            JLPT {{ current_level }}
+        </div>
+
+        <h1>
+            <i class="fas fa-book-open me-2" style="opacity:.85;"></i>คลังคำศัพท์
+        </h1>
+        <p class="hero-sub">
+            {% if current_level == "N5" %}ระดับเริ่มต้น · พื้นฐานภาษาญี่ปุ่นที่ต้องรู้
+            {% elif current_level == "N4" %}ระดับมือใหม่ · ขยายคลังคำศัพท์ให้กว้างขึ้น
+            {% elif current_level == "N3" %}ระดับกลาง · ก้าวสู่การสื่อสารขั้นสูง
+            {% elif current_level == "N2" %}ระดับสูง · ใกล้ถึงความคล่องแคล่ว
+            {% else %}ระดับเชี่ยวชาญ · ยอดแห่งการเรียนรู้ภาษาญี่ปุ่น
+            {% endif %}
+        </p>
+
+    </div>
+</header>
+
+<!-- ══════════════════════════════════ LEVEL TABS ══════════════════════════════════ -->
+<div class="tabs-outer">
+    <div class="tabs-inner">
+        <a href="?level=N5" class="ltab ltab-N5 {% if current_level == 'N5' %}active{% endif %}">
+            N5
+        </a>
+        <a href="?level=N4" class="ltab ltab-N4 {% if current_level == 'N4' %}active{% endif %}">
+            N4
+        </a>
+        <a href="?level=N3" class="ltab ltab-N3 {% if current_level == 'N3' %}active{% endif %}">
+            N3
+        </a>
+        <a href="?level=N2" class="ltab ltab-N2 {% if current_level == 'N2' %}active{% endif %}">
+            N2
+        </a>
+        <a href="?level=N1" class="ltab ltab-N1 {% if current_level == 'N1' %}active{% endif %}">
+            N1
+        </a>
+
+        <!-- Quick link to start testing this level's content -->
+        <a href="{% url 'play_home' %}" class="ltab ms-auto" style="border-color:#58cc02; color:#3a8500;">
+            <i class="fas fa-gamepad" style="font-size:.85rem;"></i> ทดสอบเลย
+        </a>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════ CONTENT ══════════════════════════════════ -->
+<div class="content-wrap">
+
+    <!-- ── Toolbar ── -->
+    <div class="toolbar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input
+                type="text"
+                id="search-input"
+                placeholder="ค้นหาคำศัพท์ภาษาญี่ปุ่น, คำอ่าน หรือความหมาย…"
+                autocomplete="off"
+            >
+        </div>
+        <div class="count-badge">
+            <i class="fas fa-list-ul" style="color:var(--accent);"></i>
+            <span class="count-num" id="count-num">{{ questions|length }}</span>
+            <span style="color:var(--muted); font-weight:400;">รายการ</span>
+        </div>
+    </div>
+
+    <!-- ── Table ── -->
+    <div class="table-shell">
+        <div class="table-responsive">
+            <table class="vocab-table" id="vocab-table">
+                <thead>
+                    <tr>
+                        <th class="td-num">#</th>
+                        <th>คำศัพท์ / คำอ่าน</th>
+                        <th>ความหมาย</th>
+                        <th class="hide-sm">ตัวอย่างประโยค</th>
+                        <th class="hide-sm">คำแปลประโยค</th>
+                        <th class="td-audio">🔊</th>
+                    </tr>
+                </thead>
+                <tbody id="vocab-tbody">
+
+                    {% for q in questions %}
+                    <tr class="vocab-row">
+
+                        <!-- # -->
+                        <td class="td-num">{{ forloop.counter }}</td>
+
+                        <!-- Word + reading -->
+                        <td class="td-word">
+                            <div class="word-stack">
+                                <span class="jp-word">{{ q.jp_text }}</span>
+                                {% if q.jp_reading %}
+                                <span class="jp-reading">{{ q.jp_reading }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Meaning -->
+                        <td class="td-meaning">
+                            <div class="th-meaning">{{ q.th_meaning_first }}</div>
+                            {% if q.en_meaning %}
+                            <div class="en-meaning">{{ q.en_meaning }}</div>
+                            {% endif %}
+                        </td>
+
+                        <!-- JP Sentence -->
+                        <td class="td-sent hide-sm">
+                            <span class="sentence-jp">{{ q.jp_sentence|default:"—" }}</span>
+                        </td>
+
+                        <!-- TH Sentence -->
+                        <td class="td-sent hide-sm">
+                            <span class="sentence-th">{{ q.th_sentence|default:"—" }}</span>
+                        </td>
+
+                        <!-- Audio -->
+                        <td class="td-audio">
+                            <button
+                                class="btn-audio"
+                                data-jp="{{ q.jp_text|escapejs }}"
+                                title="ฟังการออกเสียง {{ q.jp_text }}"
+                            >
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                        </td>
+
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <span class="big-char">？</span>
+                                <strong>ยังไม่มีคำศัพท์ใน JLPT {{ current_level }}</strong>
+                                <p class="mt-2" style="font-size:.85rem;">เพิ่มข้อมูลผ่านหน้า Admin ก่อนนะคะ</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+            <div id="no-results-msg" class="empty-state d-none">
+                <span class="big-char">🔍</span>
+                <strong>ไม่พบคำศัพท์ที่ค้นหา</strong>
+                <p style="font-size:.85rem; margin-top:.5rem;">ลองพิมพ์คำอื่น หรือล้างช่องค้นหา</p>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /.content-wrap -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    /* ── TTS ── */
+    let currentAudioBtn = null;
+
+    function speakJP(text, btn) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        if (currentAudioBtn) currentAudioBtn.classList.remove('playing');
+        if (btn) { btn.classList.add('playing'); currentAudioBtn = btn; }
+
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'ja-JP';
+        u.rate = 0.85;
+        u.onend = u.onerror = function () {
+            if (btn) btn.classList.remove('playing');
+            currentAudioBtn = null;
+        };
+        window.speechSynthesis.speak(u);
+    }
+
+    // expose for the wotd inline onclick
+    window.speakJP = function (text) { speakJP(text, null); };
+
+    /* Audio row buttons */
+    document.querySelectorAll('.btn-audio[data-jp]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            speakJP(btn.dataset.jp, btn);
+        });
+    });
+
+    /* ── Live Search ── */
+    const searchInput  = document.getElementById('search-input');
+    const rows         = document.querySelectorAll('.vocab-row');
+    const countNumEl   = document.getElementById('count-num');
+    const noResultMsg  = document.getElementById('no-results-msg');
+
+    searchInput.addEventListener('input', function () {
+        const q = this.value.trim().toLowerCase();
+        let visible = 0;
+
+        rows.forEach(function (row) {
+            const text = row.innerText.toLowerCase();
+            const show = !q || text.includes(q);
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        countNumEl.textContent = visible;
+        noResultMsg.classList.toggle('d-none', visible > 0);
+    });
+
+    /* ── Word-of-the-day: pick a random one from the table ── */
+    const allRows = Array.from(rows);
+    if (allRows.length > 1) {
+        const rand = allRows[Math.floor(Math.random() * allRows.length)];
+        const cells = rand.querySelectorAll('td');
+        if (cells.length >= 4) {
+            const wordStack = cells[1].querySelector('.word-stack');
+            const word    = wordStack ? wordStack.querySelector('.jp-word').textContent : '';
+            const reading = wordStack ? (wordStack.querySelector('.jp-reading') || {}).textContent || '' : '';
+            const meaning = cells[2].querySelector('.th-meaning').textContent;
+            const jpText  = rand.querySelector('.btn-audio') ? rand.querySelector('.btn-audio').dataset.jp : word;
+
+            if (word) {
+                document.getElementById('wotd-word').textContent    = word;
+                document.getElementById('wotd-reading').textContent = reading;
+                document.getElementById('wotd-meaning').textContent = meaning;
+                document.getElementById('btn-wotd-speak').onclick   = function () { speakJP(jpText, null); };
+            }
+        }
+    }
+
+})();
+</script>
+</body>
+</html>

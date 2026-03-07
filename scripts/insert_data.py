@@ -3,69 +3,85 @@ import sys
 import django
 import csv
 from pathlib import Path
-import pykakasi  # 👈 1. นำเข้าไลบรารีแปลงคำอ่าน
+import pykakasi
 
-# ตั้งค่าให้ Python รู้จัก Django Project
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "my_duolingo.settings")
+PROJECT_ROOT = os.getcwd()
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "jplearn.settings")
 django.setup()
 
 from lessons.models import Level, Question
 
 def run():
-    # 👈 2. เปิดใช้งานตัวแปลงคันจิเป็นฮิรางานะ/โรมาจิ
     kks = pykakasi.kakasi()
 
     file_mapping = {
-        'jp_datasets/n5.csv': 1,
-        'jp_datasets/n4.csv': 2,
-        'jp_datasets/n3.csv': 3,
-        'jp_datasets/n2.csv': 4,
-        'jp_datasets/n1.csv': 5
+        'jp_datasets/n5.csv': (1, 'N5'),
+        'jp_datasets/n4.csv': (2, 'N4'),
+        'jp_datasets/n3.csv': (3, 'N3'),
+        'jp_datasets/n2.csv': (4, 'N2'),
+        'jp_datasets/n1.csv': (5, 'N1')
     }
 
-    for filepath, level_num in file_mapping.items():
-        level_title = f"JLPT N{6 - level_num} Vocabulary"
+    for filepath, (level_num, jlpt_label) in file_mapping.items():
+        level_title = f"JLPT {jlpt_label} Vocabulary"
         level_obj, created = Level.objects.get_or_create(level_number=level_num, defaults={'title': level_title})
         
-        # 🧹 ล้างข้อมูลเก่าของด่านนี้ทิ้งไปก่อน
         level_obj.questions.all().delete()
         
         try:
-            with open(filepath, mode='r', encoding='utf-8-sig') as file:
+            csv_path = os.path.join(PROJECT_ROOT, filepath)
+            
+            with open(csv_path, mode='r', encoding='utf-8-sig') as file:
                 reader = csv.DictReader(file)
                 count_words = 0
                 count_sentences = 0
                 
                 for row in reader:
-                    # 1. นำเข้าคำศัพท์ (Word)
+                    jp_sent = row.get('jp_sentence', '').strip()
+                    th_sent = row.get('th_sentence', '').strip()
+
+                    # 🌟 แปลงคำอ่านให้เป็น "โรมาจิ (Romaji)" ภาษาอังกฤษล้วนๆ
+                    base_reading = row['reading'] if row['reading'] else row['expression']
+                    word_kks = kks.convert(base_reading)
+                    word_romaji = "".join([item['hepburn'] for item in word_kks])
+                    
+                    # ใช้แค่โรมาจิล้วนๆ เลย (เช่น aa, asoko, achira)
+                    final_word_reading = word_romaji
+
+                    # บันทึกคำศัพท์ (Word)
                     Question.objects.create(
                         level=level_obj,
                         question_type='word',
+                        jlpt_level=jlpt_label,
                         jp_text=row['expression'],
-                        jp_reading=row['reading'] if row['reading'] else row['expression'],
+                        jp_reading=final_word_reading, # 👈 ตรงนี้จะกลายเป็นภาษาอังกฤษล้วนแล้ว
                         th_meaning=row['ความหมาย'],
-                        en_meaning=row['meaning']   
+                        en_meaning=row['meaning'],
+                        jp_sentence=jp_sent,
+                        th_sentence=th_sent
                     )
                     count_words += 1
                     
-                    # 2. นำเข้าประโยค (Sentence)
-                    if row.get('jp_sentence') and row.get('th_sentence'):
-                        
-                        # 🌟 3. ให้ pykakasi ช่วยอ่านประโยคคันจิยาวๆ ให้กลายเป็นฮิรางานะและโรมาจิ
-                        result = kks.convert(row['jp_sentence'])
+                    # บันทึกประโยค (Sentence)
+                    if jp_sent and th_sent:
+                        result = kks.convert(jp_sent)
                         sentence_hira = "".join([item['hira'] for item in result])
                         sentence_romaji = " ".join([item['hepburn'] for item in result])
-                        
-                        # นำมาต่อกันให้สวยงาม เช่น あした、ともだちにあいます。 (ashita, tomodachi ni aimasu.)
+                        # ส่วนประโยคตัวอย่างของด่าน 5 ให้มีทั้งฮิรางานะและโรมาจิเหมือนเดิม จะได้ใบ้ผู้เล่นได้
                         full_sentence_reading = f"{sentence_hira} ({sentence_romaji})"
                         
                         Question.objects.create(
                             level=level_obj,
                             question_type='sentence',
-                            jp_text=row['jp_sentence'],
-                            jp_reading=full_sentence_reading, # 👈 ส่งคำอ่านเต็มๆ เข้า Database
-                            th_meaning=row['th_sentence'],
+                            jlpt_level=jlpt_label,
+                            jp_text=jp_sent,
+                            jp_reading=full_sentence_reading, 
+                            th_meaning=th_sent,
+                            jp_sentence=jp_sent,
+                            th_sentence=th_sent,
                             en_meaning=f"Vocab: {row['expression']} - {row['meaning']}"
                         )
                         count_sentences += 1
@@ -79,4 +95,5 @@ def run():
 
     print("\n🎉 อัปเดตข้อมูลครบทุกระดับเรียบร้อยแล้ว!")
 
-run()
+if __name__ == "__main__":
+    run()

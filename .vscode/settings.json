@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd \"/home/arsumaehae/work/software ii/my-duolingo\" && source duolingo_venv/bin/activate && python manage\\.py makemigrations lessons --name \"question_jlpt_jp_sentence_th_sentence\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

@@ -1,134 +1,632 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lv.{{ level.level_number }} - ฝึกคำศัพท์</title>
+    <title>JP Learn · ด่าน {{ level.level_number }} - {{ level.title }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Noto+Sans+Thai:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+Japanese:wght@400;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans Thai', sans-serif; background-color: #f4f7f6; }
-        #quiz-card { border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important; border: 2px solid #e5e5e5; }
-        #jp-text { font-family: 'Fredoka', sans-serif; letter-spacing: 1px; }
-        #btn-speak { background-color: #f0f4f8; border: 2px solid #dce4eb; color: #1cb0f6 !important; transition: all 0.2s; }
-        #btn-speak:hover { background-color: #e0f0ff; transform: scale(1.05); }
-        #answer-input { border: 2px solid #e5e5e5; border-radius: 16px; background-color: #f9f9f9; transition: all 0.3s; box-shadow: none; }
-        #answer-input:focus { border-color: #1cb0f6; background-color: #ffffff; }
-        #selected-words-zone { border: 2px dashed #cecece !important; border-radius: 16px !important; background-color: #f9f9f9 !important; }
-        .word-btn { border: 2px solid #e5e5e5; background-color: white; color: #4b4b4b; font-weight: 600; border-bottom: 4px solid #e5e5e5; transition: 0.1s; }
-        .word-btn:hover { background-color: #f0f0f0; transform: translateY(2px); border-bottom-width: 2px; margin-bottom: 2px; }
-        .btn-game { border: none; font-weight: bold; font-size: 1.2rem; padding: 12px; transition: 0.1s; }
-        .btn-check-ans { background-color: #1cb0f6; color: white; border-bottom: 5px solid #1899d6; }
-        .btn-check-ans:active { border-bottom-width: 0; transform: translateY(5px); }
-        .btn-next-q { background-color: #58cc02; color: white; border-bottom: 5px solid #58a700; }
-        .btn-next-q:active { border-bottom-width: 0; transform: translateY(5px); }
-        .btn-override-ans { background-color: #ffc800; color: #c95100; border-bottom: 5px solid #e5a700; }
-        .btn-retry-ans { background-color: #ff4b4b; color: white; border-bottom: 5px solid #d33030; }
-        .btn-retry-ans:active { border-bottom-width: 0; transform: translateY(5px); }
-        .btn-override-ans:active { border-bottom-width: 0; transform: translateY(5px); }
-        .alert { border-radius: 16px; border: none; font-weight: 500; }
-        .alert-success { background-color: #d7ffb8; color: #2b7a0b; }
-        .alert-danger { background-color: #ffdfe0; color: #ea2b2b; }
-        .progress-indicator { background-color: #e5e5e5; height: 12px; border-radius: 10px; width: 150px; overflow: hidden; }
-        .progress-bar-fill { background-color: #58cc02; height: 100%; transition: width 0.4s ease; }
-        
-        @keyframes slideInFromRight {
-            0% { opacity: 0; transform: translateX(50px); }
-            100% { opacity: 1; transform: translateX(0); }
+        /* ═══════════════════════════════════════════════════
+           Base
+        ═══════════════════════════════════════════════════ */
+        :root {
+            --blue:     #1cb0f6;
+            --blue-dk:  #1899d6;
+            --green:    #58cc02;
+            --green-dk: #58a700;
+            --red:      #ff4b4b;
+            --red-dk:   #d33030;
+            --yellow:   #ffc800;
+            --orange:   #ff9600;
+            --bg:       #f4f7f6;
+            --card-r:   24px;
         }
-        .slide-animation { animation: slideInFromRight 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           Top navigation / progress bar
+        ═══════════════════════════════════════════════════ */
+        .game-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg);
+        }
+        #btn-close-page {
+            color: #ccc;
+            font-size: 1.3rem;
+            text-decoration: none;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+        #btn-close-page:hover { color: #888; }
+        .progress-track {
+            flex: 1;
+            height: 12px;
+            background: #e5e5e5;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            height: 100%;
+            background: var(--green);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        #progress-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #aaa;
+            flex-shrink: 0;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           Quiz card
+        ═══════════════════════════════════════════════════ */
+        #quiz-card {
+            background: white;
+            border-radius: var(--card-r);
+            border: 2px solid #e8e8e8;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+            padding: 2rem 1.75rem;
+        }
+
+        /* Mode label */
+        #mode-label {
+            display: inline-block;
+            background: #f0f4f8;
+            color: #555;
+            border-radius: 50px;
+            padding: 4px 14px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 1.2rem;
+        }
+
+        /* TTS button */
+        #btn-speak {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: #f0f8ff;
+            border: 2px solid #d5eaf8;
+            color: var(--blue);
+            font-size: 1.8rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s, background 0.15s;
+            margin: 0 auto 1rem;
+        }
+        #btn-speak:hover { background: #ddf0ff; transform: scale(1.06); }
+        #btn-speak:active { transform: scale(0.95); }
+        #btn-speak.speaking { animation: pulse-blue 0.8s ease-in-out infinite alternate; }
+        @keyframes pulse-blue {
+            from { box-shadow: 0 0 0 0 rgba(28,176,246,0.5); }
+            to   { box-shadow: 0 0 0 14px rgba(28,176,246,0); }
+        }
+
+        /* Japanese word display */
+        #jp-text {
+            font-family: 'Noto Sans Japanese', 'Fredoka', sans-serif;
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1.1;
+            letter-spacing: 2px;
+        }
+
+        /* Reading hint */
+        #hint-box {
+            cursor: pointer;
+            min-height: 38px;
+            position: relative;
+            margin: 0.5rem 0 1.5rem;
+        }
+        #hint-prompt {
+            background: #f7f7f7;
+            border: 1.5px solid #eee;
+            border-radius: 50px;
+            padding: 5px 18px;
+            font-size: 0.82rem;
+            color: #999;
+            font-weight: 600;
+            transition: opacity 0.25s;
+            display: inline-block;
+        }
+        #hint-prompt i { color: var(--yellow); }
+        #jp-reading {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--blue);
+            opacity: 0;
+            transition: opacity 0.25s;
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 2px;
+            pointer-events: none;
+        }
+        #hint-box.revealed #hint-prompt { opacity: 0; pointer-events: none; }
+        #hint-box.revealed #jp-reading  { opacity: 1; }
+
+        /* ═══════════════════════════════════════════════════
+           MODE CONTAINERS (all hidden by default)
+        ═══════════════════════════════════════════════════ */
+
+        /* ── Mode A: Multiple Choice ── */
+        #mc-container { display: none; }
+        .mc-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .mc-btn {
+            width: 100%;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-bottom: 4px solid #cacaca;
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #3c3c3c;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s, transform 0.08s;
+            text-align: left;
+            font-family: 'Noto Sans Thai', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mc-btn::before {
+            content: attr(data-letter);
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 2px solid #d0d0d0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #888;
+            background: #f5f5f5;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .mc-btn:hover:not(:disabled) { border-color: var(--blue); background: #f0f9ff; transform: translateY(-1px); }
+        .mc-btn:hover:not(:disabled)::before { border-color: var(--blue); color: var(--blue); background: #dff0ff; }
+        .mc-btn:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; }
+        .mc-btn.selected  { border-color: var(--blue); background: #e8f6fe; color: #0d6efd; }
+        .mc-btn.selected::before { border-color: var(--blue); background: var(--blue); color: white; }
+        .mc-btn.correct   { border-color: var(--green); background: #d7ffb8; color: #2b7a0b; pointer-events: none; }
+        .mc-btn.correct::before { border-color: var(--green); background: var(--green); color: white; }
+        .mc-btn.incorrect { border-color: var(--red); background: #ffe0e0; color: var(--red); pointer-events: none; }
+        .mc-btn.incorrect::before { border-color: var(--red); background: var(--red); color: white; }
+        .mc-btn:disabled  { cursor: not-allowed; opacity: 0.7; }
+
+        /* ── Mode B: Type Answer ── */
+        #type-container { display: none; }
+        #answer-input {
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            background: #f9f9f9;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 14px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        #answer-input:focus { border-color: var(--blue); background: white; }
+        #answer-input.correct   { border-color: var(--green); background: #d7ffb8; }
+        #answer-input.incorrect { border-color: var(--red);   background: #ffe0e0; }
+
+        /* ── Mode C: Fill in the Blank ── */
+        #fill-blank-container { display: none; }
+        #fill-sentence-display {
+            font-size: 1.5rem;
+            line-height: 1.8;
+            color: #2c3e50;
+            background: #f7f7f7;
+            border-radius: 16px;
+            padding: 1.1rem 1.4rem;
+            font-family: 'Noto Sans Thai', sans-serif;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .blank-slot {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 3px solid var(--blue);
+            color: var(--blue);
+            font-weight: 700;
+            padding: 0 8px;
+            text-align: center;
+        }
+        #fill-th-hint {
+            font-size: 0.82rem;
+            color: #888;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+        #fill-word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        /* ── Mode D: Sentence Sort ── */
+        #sort-container { display: none; }
+        #sort-prompt {
+            background: #f0f8e8;
+            border: 2px solid #d4f0b6;
+            border-radius: 16px;
+            padding: 1rem 1.4rem;
+            font-size: 1rem;
+            color: #2b7a0b;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        #sort-prompt .label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5aa800;
+            display: block;
+            margin-bottom: 4px;
+        }
+        #sort-answer-zone {
+            min-height: 60px;
+            border: 2px dashed #c8c8c8;
+            border-radius: 16px;
+            background: #fafafa;
+            padding: 10px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            transition: border-color 0.2s;
+        }
+        #sort-answer-zone.correct   { border-color: var(--green); background: #d7ffb8; }
+        #sort-answer-zone.incorrect { border-color: var(--red);   background: #ffe0e0; }
+        #sort-answer-zone .placeholder-text {
+            color: #bbb;
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+        .sort-divider { border: none; border-top: 2px solid #eee; margin: 0.75rem 0; }
+        #sort-tile-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        /* ─── Shared word-tile buttons ─── */
+        .word-tile {
+            background: white;
+            border: 2px solid #d8d8d8;
+            border-bottom: 4px solid #c8c8c8;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #3c3c3c;
+            cursor: pointer;
+            transition: border-color 0.12s, transform 0.08s, background 0.12s;
+            font-family: 'Noto Sans Thai', 'Noto Sans Japanese', sans-serif;
+        }
+        .word-tile:hover:not(:disabled) { border-color: var(--blue); background: #f0f9ff; transform: translateY(-2px); }
+        .word-tile:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; }
+        .word-tile.in-answer { border-color: #58cc02; background: #e8ffe0; color: #2b7a0b; }
+        .word-tile:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        /* ═══════════════════════════════════════════════════
+           Feedback area
+        ═══════════════════════════════════════════════════ */
+        #feedback-area {
+            border-radius: 16px;
+            border: none;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            display: none;
+        }
+        #feedback-area.show { display: flex; align-items: flex-start; gap: 12px; }
+        #feedback-area.feedback-correct {
+            background: #d7ffb8;
+            color: #2b7a0b;
+        }
+        #feedback-area.feedback-incorrect {
+            background: #ffdfe0;
+            color: #ea2b2b;
+        }
+        #feedback-area.feedback-retry {
+            background: #fff0cc;
+            color: #c95100;
+        }
+        #feedback-area .fb-icon { font-size: 1.5rem; flex-shrink: 0; }
+        #feedback-area .fb-body {}
+        #feedback-area .fb-title { font-size: 0.95rem; font-weight: 700; margin: 0 0 2px; }
+        #feedback-area .fb-detail { font-size: 0.82rem; opacity: 0.85; margin: 0; }
+
+        /* ═══════════════════════════════════════════════════
+           Action buttons
+        ═══════════════════════════════════════════════════ */
+        .btn-game {
+            border: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 15px;
+            border-radius: 50px;
+            width: 100%;
+            transition: transform 0.08s, box-shadow 0.08s;
+            font-family: 'Noto Sans Thai', sans-serif;
+            cursor: pointer;
+        }
+        .btn-game:active { transform: translateY(3px); }
+
+        #btn-check {
+            background: var(--blue);
+            color: white;
+            box-shadow: 0 5px 0 var(--blue-dk);
+        }
+        #btn-check:active { box-shadow: 0 2px 0 var(--blue-dk); }
+        #btn-check:disabled {
+            background: #e5e5e5;
+            color: #aaa;
+            box-shadow: 0 5px 0 #ccc;
+            cursor: not-allowed;
+        }
+        #btn-next {
+            background: var(--green);
+            color: white;
+            box-shadow: 0 5px 0 var(--green-dk);
+            display: none;
+        }
+        #btn-next:active { box-shadow: 0 2px 0 var(--green-dk); }
+
+        /* ═══════════════════════════════════════════════════
+           Result screen
+        ═══════════════════════════════════════════════════ */
+        #result-screen {
+            display: none;
+            background: white;
+            border-radius: var(--card-r);
+            border: 2px solid #e8e8e8;
+            box-shadow: 0 6px 30px rgba(0,0,0,0.07);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .result-stars { font-size: 3rem; letter-spacing: 4px; margin-bottom: 1rem; }
+        #result-title { font-family: 'Fredoka', sans-serif; font-size: 1.8rem; font-weight: 700; color: #2c3e50; }
+        #score-display { font-family: 'Fredoka', sans-serif; font-size: 4rem; font-weight: 700; }
+        .score-correct   { color: var(--green); }
+        .score-separator { color: #ccc; margin: 0 4px; }
+        .score-total     { color: #aaa; font-size: 2.5rem; }
+        #btn-retry-game {
+            background: var(--red);
+            color: white;
+            box-shadow: 0 5px 0 var(--red-dk);
+            display: none;
+        }
+        #btn-finish-game {
+            background: var(--blue);
+            color: white;
+            box-shadow: 0 5px 0 var(--blue-dk);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           Slide-in animation
+        ═══════════════════════════════════════════════════ */
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(40px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        .slide-in { animation: slideInRight 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) both; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%       { transform: translateX(-8px); }
+            40%       { transform: translateX(8px); }
+            60%       { transform: translateX(-5px); }
+            80%       { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.4s ease both; }
     </style>
 </head>
 <body>
-    <div class="container py-3" style="max-width: 650px;">
-        
-        <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-            <a href="#" id="btn-close-page" class="text-secondary fs-4 text-decoration-none"><i class="fas fa-times"></i></a>
-            
-            <div class="progress-indicator flex-grow-1 mx-4">
-                <div id="progress-bar" class="progress-bar-fill" style="width: 20%;"></div> 
-            </div>
-            <h5 class="mb-0 fw-bold text-secondary" id="progress-text">1/5</h5>
+<div class="container py-2" style="max-width:640px;">
+
+    <!-- ── Navigation bar ── -->
+    <nav class="game-nav px-0">
+        <a href="{% url 'play_home' %}" id="btn-close-page" title="ออกจากเกม">
+            <i class="fas fa-times"></i>
+        </a>
+        <div class="progress-track">
+            <div id="progress-bar"></div>
+        </div>
+        <span id="progress-text">1 / 5</span>
+    </nav>
+
+    <!-- ── Error state (no questions) ── -->
+    {% if error %}
+    <div class="alert alert-warning rounded-4 mt-3 text-center py-4">
+        <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block text-warning"></i>
+        <strong>{{ error }}</strong>
+        <div class="mt-3">
+            <a href="{% url 'play_home' %}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                กลับเลือกด่าน
+            </a>
+        </div>
+    </div>
+    {% else %}
+
+    <!-- ══════════════════════════════════════════
+         QUIZ CARD
+    ══════════════════════════════════════════ -->
+    <div id="quiz-card" class="mt-2 slide-in">
+
+        <!-- Mode label -->
+        <div class="text-center">
+            <span id="mode-label">กำลังโหลด…</span>
         </div>
 
-        <div id="quiz-card" class="card bg-white mt-3">
-            <div class="card-body p-sm-5 p-4 text-center">
-                <button id="btn-speak" class="btn rounded-circle mb-4 shadow-sm" style="width: 75px; height: 75px;">
-                    <i class="fas fa-volume-up fa-2x"></i>
-                </button>
-                <h1 class="display-3 fw-bold text-dark mb-1" id="jp-text">...</h1>
-                
-                <div id="hint-box" class="mb-4 mt-2" style="cursor: pointer; height: 40px; position: relative;">
-                    <span id="hint-text" class="text-muted fs-6" style="transition: opacity 0.3s; position: absolute; width: 100%; left: 0;">
-                        <span class="bg-light px-3 py-1 rounded-pill border"><i class="fas fa-lightbulb text-warning"></i> ดูคำอ่าน</span>
-                    </span>
-                    <span id="jp-reading" class="text-primary fs-4 fw-bold" style="opacity: 0; transition: opacity 0.3s; position: absolute; width: 100%; left: 0;">...</span>
-                </div>
-
-                <div id="word-input-container" class="mb-4 text-start px-md-4">
-                    <input type="text" id="answer-input" class="form-control form-control-lg text-center fs-4 py-3" placeholder="พิมพ์คำตอบภาษาไทย" autocomplete="off">
-                </div>
-
-                <div id="sentence-ui-container" class="mb-4 d-none">
-                    <div id="selected-words-zone" class="p-3 mb-4 rounded d-flex flex-wrap justify-content-center gap-2 align-items-center"></div>
-                    <hr class="text-muted opacity-25">
-                    <div id="word-bank-zone" class="d-flex flex-wrap justify-content-center gap-2 mt-3"></div>
-                </div>
-
-                <div id="feedback-area" class="alert d-none mb-4 p-4 text-start" role="alert"></div>
-            </div>
-        </div>
-        
-        <div id="action-buttons-container" class="mt-4 px-2">
-            <button id="btn-check" class="btn btn-game btn-check-ans w-100 rounded-pill">ตรวจสอบ</button>
-            
-            <button id="btn-next" class="btn btn-game btn-next-q w-100 rounded-pill d-none">ดำเนินการต่อ</button>
+        <!-- TTS button -->
+        <div class="text-center">
+            <button id="btn-speak" title="ฟังการออกเสียง">
+                <i class="fas fa-volume-up"></i>
+            </button>
         </div>
 
-        <div id="result-screen" class="card shadow border-0 rounded-4 d-none text-center mt-5">
-            <div class="card-body p-5">
-                <div id="result-icon" class="mb-4"><i class="fas fa-star fa-5x text-warning"></i></div>
-                
-                <h2 id="result-title" class="mb-3 fw-bold text-dark">เก่งมาก! บทเรียนเสร็จสมบูรณ์</h2>
-                <h1 id="score-text" class="display-2 fw-bold text-success mb-4"><span id="final-score">0</span> / 5</h1>
-                
-                <a href="#" id="btn-finish-game" class="btn btn-game btn-check-ans rounded-pill px-5 w-100">ดำเนินการต่อ</a>
-                
-                <button id="btn-retry-game" class="btn btn-game btn-retry-ans rounded-pill px-5 w-100 d-none">เริ่มใหม่</button>
+        <!-- Japanese word / sentence -->
+        <div class="text-center mb-1">
+            <span id="jp-text">…</span>
+        </div>
+
+        <!-- Reading hint -->
+        <div id="hint-box" class="text-center" role="button" tabindex="0" aria-label="คลิกเพื่อดูคำอ่าน">
+            <span id="hint-prompt"><i class="fas fa-lightbulb"></i> ดูคำอ่าน</span>
+            <span id="jp-reading">…</span>
+        </div>
+
+        <!-- ─────────────────────────────────────────────────
+             MODE A: Multiple Choice (Level 1, 2)
+        ───────────────────────────────────────────────── -->
+        <div id="mc-container" class="mt-3">
+            <div class="mc-grid" id="mc-grid">
+                <!-- Injected by play.js -->
             </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────────
+             MODE B: Type Answer (Level 3, Q1–Q3)
+        ───────────────────────────────────────────────── -->
+        <div id="type-container" class="mt-3 px-md-3">
+            <input
+                type="text"
+                id="answer-input"
+                placeholder="พิมพ์คำตอบภาษาไทย…"
+                autocomplete="off"
+                spellcheck="false"
+            >
+        </div>
+
+        <!-- ─────────────────────────────────────────────────
+             MODE C: Fill in the Blank (Level 3 Q4–5, Level 4)
+        ───────────────────────────────────────────────── -->
+        <div id="fill-blank-container" class="mt-3">
+            <!-- Sentence with blank -->
+            <div id="fill-sentence-display"></div>
+            <!-- Thai meaning hint -->
+            <p id="fill-th-hint" class="text-center"></p>
+            <!-- Word bank (choice tiles) -->
+            <div id="fill-word-bank"></div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────────
+             MODE D: Sentence Sort (Level 5)
+        ───────────────────────────────────────────────── -->
+        <div id="sort-container" class="mt-3">
+            <!-- Thai prompt -->
+            <div id="sort-prompt">
+                <span class="label">เรียงคำเป็นประโยคภาษาญี่ปุ่น</span>
+                <span id="sort-prompt-text">…</span>
+            </div>
+
+            <!-- Answer zone (drop tiles here) -->
+            <div id="sort-answer-zone" role="region" aria-label="วางคำที่นี่">
+                <span class="placeholder-text">กดคำด้านล่างเพื่อวางที่นี่</span>
+            </div>
+
+            <hr class="sort-divider">
+
+            <!-- Tile bank -->
+            <div id="sort-tile-bank">
+                <!-- Injected by play.js -->
+            </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────────
+             Feedback
+        ───────────────────────────────────────────────── -->
+        <div id="feedback-area" class="mt-3" role="alert" aria-live="polite">
+            <span class="fb-icon"></span>
+            <div class="fb-body">
+                <p class="fb-title"></p>
+                <p class="fb-detail"></p>
+            </div>
+        </div>
+
+    </div><!-- /#quiz-card -->
+
+    <!-- ══════════════════════════════════════════
+         ACTION BUTTONS
+    ══════════════════════════════════════════ -->
+    <div id="action-btn-wrap" class="mt-4 px-1">
+        <button id="btn-check" class="btn-game" disabled>ตรวจสอบ</button>
+        <button id="btn-next"  class="btn-game mt-2">ดำเนินการต่อ →</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         RESULT SCREEN
+    ══════════════════════════════════════════ -->
+    <div id="result-screen" class="mt-3">
+        <div class="result-stars" id="result-stars">⭐⭐⭐</div>
+        <h2 id="result-title">บทเรียนเสร็จสมบูรณ์!</h2>
+        <div id="score-display" class="my-3">
+            <span id="final-score" class="score-correct">0</span><span class="score-separator">/</span><span class="score-total">5</span>
+        </div>
+        <p id="result-msg" class="text-muted mb-4"></p>
+
+        <div class="d-flex flex-column gap-3">
+            <button id="btn-retry-game" class="btn-game">🔄 ลองใหม่อีกครั้ง</button>
+            <a href="{% url 'play_home' %}" id="btn-finish-game" class="btn-game text-decoration-none text-center">
+                เลือกด่านอื่น
+            </a>
         </div>
     </div>
 
-    {{ questions|json_script:"questions-data" }}
-    <script src="https://unpkg.com/wanakana"></script>
-    <script src="{% static 'lessons/js/play.js' %}?v=999"></script>
-    
-    <script>
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.addedNodes.length) {
-                    mutation.addedNodes.forEach(node => {
-                        if(node.tagName === 'BUTTON' && node.parentElement && (node.parentElement.id === 'word-bank-zone' || node.parentElement.id === 'selected-words-zone')) {
-                            node.className = 'btn word-btn btn-lg rounded-pill px-4'; 
-                        }
-                    });
-                }
-            });
-        });
-        const bankZone = document.getElementById('word-bank-zone');
-        if(bankZone) observer.observe(bankZone, { childList: true });
+    {% endif %}
+</div>
 
-        // 🌟 ส่งข้อความปิดจอ Iframe กลับไปหาหน้า Home
-        document.getElementById('btn-close-page').addEventListener('click', function(e) {
-            e.preventDefault(); 
-            window.parent.postMessage('closeGameModal', '*'); 
-        });
-        document.getElementById('btn-finish-game').addEventListener('click', function(e) {
-            e.preventDefault(); 
-            window.parent.postMessage('closeGameModal', '*'); 
-        });
-    </script>
+<!-- ══════════════════════════════════════════════════════════
+     DATA INJECTION  (XSS-safe via Django json_script filter)
+══════════════════════════════════════════════════════════ -->
+{{ questions_data|json_script:"questions-data" }}
+<script>
+    const LEVEL_ID = {{ level_id }};
+</script>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'lessons/js/play.js' %}?v={{ level_id }}"></script>
+
 </body>
 </html>
