@@ -163,6 +163,47 @@
             font-weight: 700; z-index: 1; transform: rotate(-10deg);
         }
 
+        .card-passed-badge {
+            position: absolute;
+            top: 14px; right: 14px;
+            background: rgba(255,255,255,0.9);
+            color: #318500;
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 3;
+            backdrop-filter: blur(4px);
+        }
+
+        .lock-badge {
+            position: absolute;
+            top: 14px; right: 14px;
+            background: rgba(0,0,0,0.45);
+            color: white;
+            border-radius: 50px;
+            padding: 4px 13px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 3;
+            backdrop-filter: blur(4px);
+        }
+
+        .level-card.locked {
+            filter: grayscale(0.55) brightness(0.85);
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+            transform: none !important;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2), 0 8px 20px rgba(0,0,0,0.15) !important;
+        }
+
+        .card-locked-btn {
+            background: rgba(255,255,255,0.55) !important;
+            color: rgba(30,41,59,0.6) !important;
+            cursor: not-allowed;
+        }
+
         @keyframes cardEnter {
             from { opacity: 0; transform: translateY(40px) scale(0.95); }
             to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -174,9 +215,176 @@
             .level-grid { flex-direction: column; }
             .level-card { max-width: 100%; }
         }
+
+        /* ══ PLAYED VOCAB PANEL ══ */
+        .played-vocab-section {
+            max-width: 1400px;
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+        }
+        .vocab-toggle-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            border: 2px solid #ddd6fe;
+            border-radius: 20px;
+            padding: 1.3rem 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        .vocab-toggle-btn:hover {
+            border-color: #a78bfa;
+            box-shadow: 0 4px 16px rgba(124,58,237,0.15);
+            transform: translateY(-2px);
+        }
+        .vocab-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .vocab-toggle-icon {
+            font-size: 2rem;
+            line-height: 1;
+        }
+        .vocab-toggle-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #4c1d95;
+        }
+        .vocab-toggle-sub {
+            font-size: 0.85rem;
+            color: #6d28d9;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+        .vocab-toggle-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .vocab-count-pill {
+            background: #7c3aed;
+            color: white;
+            border-radius: 50px;
+            padding: 4px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+        .vocab-chevron {
+            font-size: 1.1rem;
+            color: #7c3aed;
+            transition: transform 0.3s;
+        }
+        .vocab-toggle-btn.open .vocab-chevron {
+            transform: rotate(180deg);
+        }
+        .vocab-panel {
+            display: none;
+            background: white;
+            border: 2px solid #ddd6fe;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+        }
+        .vocab-panel.open {
+            display: block;
+            animation: panelSlide 0.28s ease both;
+        }
+        @keyframes panelSlide {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .vocab-level-group {
+            border-bottom: 2px solid #ede9fe;
+        }
+        .vocab-level-group:last-child { border-bottom: none; }
+        .vocab-level-header {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #5b21b6;
+            letter-spacing: 0.03em;
+            border-bottom: 1px solid #ede9fe;
+        }
+        .vocab-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 11px 20px;
+            border-bottom: 1px solid #f3f0ff;
+            transition: background 0.15s;
+        }
+        .vocab-row:last-child { border-bottom: none; }
+        .vocab-row:hover { background: #faf5ff; }
+        .vocab-jp {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #1e293b;
+            min-width: 60px;
+            text-align: center;
+            letter-spacing: 2px;
+            flex-shrink: 0;
+        }
+        .vocab-info { flex: 1; min-width: 0; }
+        .vocab-reading {
+            font-size: 0.75rem;
+            color: #1cb0f6;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .vocab-th {
+            font-size: 0.93rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .vocab-en {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 1px;
+        }
+
+        /* ── Hearts Widget (fixed top-right) ── */
+        #hearts-global {
+            position: fixed;
+            top: 16px; right: 20px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff0f0;
+            border: 2.5px solid #ffb3b3;
+            border-radius: 50px;
+            padding: 8px 20px 8px 14px;
+            box-shadow: 0 4px 16px rgba(229,62,62,0.15);
+        }
+        #hearts-global .hg-emoji { font-size: 1.7rem; line-height: 1; }
+        #hearts-global .hg-count {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #e53e3e;
+        }
+        #hearts-global.zero-hearts { background: #f1f5f9; border-color: #cbd5e1; }
+        #hearts-global.zero-hearts .hg-emoji { filter: grayscale(1); opacity: 0.4; }
+        #hearts-global.zero-hearts .hg-count { color: #94a3b8; }
     </style>
 </head>
 <body>
+
+    <!-- ── Hearts Widget ── -->
+    <div id="hearts-global">
+        <span class="hg-emoji">❤️</span>
+        <span class="hg-count" id="hg-count">7</span>
+    </div>
 
     <div class="page-header">
         <span class="header-deco">5 LEVELS</span>
@@ -192,7 +400,9 @@
     <div class="cards-wrap">
         <div class="level-grid">
 
+            {# ── Level 1: always unlocked ── #}
             <a href="{% url 'play_level' 1 %}" class="level-card lv1" style="animation-delay:0.1s">
+                {% if progress_map.1.is_passed %}<span class="card-passed-badge">✅ ผ่านแล้ว</span>{% endif %}
                 <div class="card-header-top">
                     <span class="card-num-badge">Lv. 1</span>
                     <span class="diff-stars">⭐</span>
@@ -202,11 +412,16 @@
                     <span class="mode-tag"><i class="fas fa-check-circle"></i> Multiple Choice</span>
                     <span class="mode-tag"><i class="fas fa-list-ul"></i> 4 ตัวเลือก</span>
                 </div>
-                <div class="card-play-btn">เริ่มเล่นด่านนี้</div>
+                <div class="card-play-btn">
+                    {% if progress_map.1 %}เล่นอีกครั้ง · สูงสุด {{ progress_map.1.highest_score }}/5{% else %}เริ่มเล่นด่านนี้{% endif %}
+                </div>
                 <span class="card-deco" aria-hidden="true">易</span>
             </a>
 
-            <a href="{% url 'play_level' 2 %}" class="level-card lv2" style="animation-delay:0.2s">
+            {# ── Level 2 ── #}
+            {% if 2 in locked_levels %}
+            <div class="level-card lv2 locked" style="animation-delay:0.2s">
+                <span class="lock-badge"><i class="fas fa-lock"></i> ผ่าน Lv.1 ก่อน</span>
                 <div class="card-header-top">
                     <span class="card-num-badge">Lv. 2</span>
                     <span class="diff-stars">⭐⭐</span>
@@ -216,11 +431,32 @@
                     <span class="mode-tag"><i class="fas fa-check-circle"></i> Multiple Choice</span>
                     <span class="mode-tag"><i class="fas fa-list-ul"></i> 4 ตัวเลือก</span>
                 </div>
-                <div class="card-play-btn">เริ่มเล่นด่านนี้</div>
+                <div class="card-play-btn card-locked-btn">🔒 ล็อกอยู่</div>
+                <span class="card-deco" aria-hidden="true">中</span>
+            </div>
+            {% else %}
+            <a href="{% url 'play_level' 2 %}" class="level-card lv2" style="animation-delay:0.2s">
+                {% if progress_map.2.is_passed %}<span class="card-passed-badge">✅ ผ่านแล้ว</span>{% endif %}
+                <div class="card-header-top">
+                    <span class="card-num-badge">Lv. 2</span>
+                    <span class="diff-stars">⭐⭐</span>
+                </div>
+                <h3 class="card-lv-title">คำศัพท์ยากขึ้น</h3>
+                <div class="card-mode-tags">
+                    <span class="mode-tag"><i class="fas fa-check-circle"></i> Multiple Choice</span>
+                    <span class="mode-tag"><i class="fas fa-list-ul"></i> 4 ตัวเลือก</span>
+                </div>
+                <div class="card-play-btn">
+                    {% if progress_map.2 %}เล่นอีกครั้ง · สูงสุด {{ progress_map.2.highest_score }}/5{% else %}เริ่มเล่นด่านนี้{% endif %}
+                </div>
                 <span class="card-deco" aria-hidden="true">中</span>
             </a>
+            {% endif %}
 
-            <a href="{% url 'play_level' 3 %}" class="level-card lv3" style="animation-delay:0.3s">
+            {# ── Level 3 ── #}
+            {% if 3 in locked_levels %}
+            <div class="level-card lv3 locked" style="animation-delay:0.3s">
+                <span class="lock-badge"><i class="fas fa-lock"></i> ผ่าน Lv.2 ก่อน</span>
                 <div class="card-header-top">
                     <span class="card-num-badge">Lv. 3</span>
                     <span class="diff-stars">⭐⭐⭐</span>
@@ -230,11 +466,32 @@
                     <span class="mode-tag"><i class="fas fa-keyboard"></i> พิมพ์คำตอบ ×3</span>
                     <span class="mode-tag"><i class="fas fa-edit"></i> เติมคำ ×2</span>
                 </div>
-                <div class="card-play-btn">เริ่มเล่นด่านนี้</div>
+                <div class="card-play-btn card-locked-btn">🔒 ล็อกอยู่</div>
+                <span class="card-deco" aria-hidden="true">難</span>
+            </div>
+            {% else %}
+            <a href="{% url 'play_level' 3 %}" class="level-card lv3" style="animation-delay:0.3s">
+                {% if progress_map.3.is_passed %}<span class="card-passed-badge">✅ ผ่านแล้ว</span>{% endif %}
+                <div class="card-header-top">
+                    <span class="card-num-badge">Lv. 3</span>
+                    <span class="diff-stars">⭐⭐⭐</span>
+                </div>
+                <h3 class="card-lv-title">คำศัพท์ยาก · Mixed</h3>
+                <div class="card-mode-tags">
+                    <span class="mode-tag"><i class="fas fa-keyboard"></i> พิมพ์คำตอบ ×3</span>
+                    <span class="mode-tag"><i class="fas fa-edit"></i> เติมคำ ×2</span>
+                </div>
+                <div class="card-play-btn">
+                    {% if progress_map.3 %}เล่นอีกครั้ง · สูงสุด {{ progress_map.3.highest_score }}/5{% else %}เริ่มเล่นด่านนี้{% endif %}
+                </div>
                 <span class="card-deco" aria-hidden="true">難</span>
             </a>
+            {% endif %}
 
-            <a href="{% url 'play_level' 4 %}" class="level-card lv4" style="animation-delay:0.4s">
+            {# ── Level 4 ── #}
+            {% if 4 in locked_levels %}
+            <div class="level-card lv4 locked" style="animation-delay:0.4s">
+                <span class="lock-badge"><i class="fas fa-lock"></i> ผ่าน Lv.3 ก่อน</span>
                 <div class="card-header-top">
                     <span class="card-num-badge">Lv. 4</span>
                     <span class="diff-stars">⭐⭐⭐</span>
@@ -244,11 +501,32 @@
                     <span class="mode-tag"><i class="fas fa-edit"></i> Fill in the Blank</span>
                     <span class="mode-tag"><i class="fas fa-list-ul"></i> 5 ตัวเลือก</span>
                 </div>
-                <div class="card-play-btn">เริ่มเล่นด่านนี้</div>
+                <div class="card-play-btn card-locked-btn">🔒 ล็อกอยู่</div>
+                <span class="card-deco" aria-hidden="true">克</span>
+            </div>
+            {% else %}
+            <a href="{% url 'play_level' 4 %}" class="level-card lv4" style="animation-delay:0.4s">
+                {% if progress_map.4.is_passed %}<span class="card-passed-badge">✅ ผ่านแล้ว</span>{% endif %}
+                <div class="card-header-top">
+                    <span class="card-num-badge">Lv. 4</span>
+                    <span class="diff-stars">⭐⭐⭐</span>
+                </div>
+                <h3 class="card-lv-title">เติมคำในประโยค</h3>
+                <div class="card-mode-tags">
+                    <span class="mode-tag"><i class="fas fa-edit"></i> Fill in the Blank</span>
+                    <span class="mode-tag"><i class="fas fa-list-ul"></i> 5 ตัวเลือก</span>
+                </div>
+                <div class="card-play-btn">
+                    {% if progress_map.4 %}เล่นอีกครั้ง · สูงสุด {{ progress_map.4.highest_score }}/5{% else %}เริ่มเล่นด่านนี้{% endif %}
+                </div>
                 <span class="card-deco" aria-hidden="true">克</span>
             </a>
+            {% endif %}
 
-            <a href="{% url 'play_level' 5 %}" class="level-card lv5" style="animation-delay:0.5s">
+            {# ── Level 5 ── #}
+            {% if 5 in locked_levels %}
+            <div class="level-card lv5 locked" style="animation-delay:0.5s">
+                <span class="lock-badge"><i class="fas fa-lock"></i> ผ่าน Lv.4 ก่อน</span>
                 <div class="card-header-top">
                     <span class="card-num-badge">Lv. 5</span>
                     <span class="diff-stars">⭐⭐⭐⭐</span>
@@ -258,13 +536,87 @@
                     <span class="mode-tag"><i class="fas fa-random"></i> Word Bank</span>
                     <span class="mode-tag"><i class="fas fa-language"></i> แปลไทย → ญี่ปุ่น</span>
                 </div>
-                <div class="card-play-btn">เริ่มเล่นด่านนี้</div>
+                <div class="card-play-btn card-locked-btn">🔒 ล็อกอยู่</div>
+                <span class="card-deco" aria-hidden="true">極</span>
+            </div>
+            {% else %}
+            <a href="{% url 'play_level' 5 %}" class="level-card lv5" style="animation-delay:0.5s">
+                {% if progress_map.5.is_passed %}<span class="card-passed-badge">✅ ผ่านแล้ว</span>{% endif %}
+                <div class="card-header-top">
+                    <span class="card-num-badge">Lv. 5</span>
+                    <span class="diff-stars">⭐⭐⭐⭐</span>
+                </div>
+                <h3 class="card-lv-title">เรียงประโยค</h3>
+                <div class="card-mode-tags">
+                    <span class="mode-tag"><i class="fas fa-random"></i> Word Bank</span>
+                    <span class="mode-tag"><i class="fas fa-language"></i> แปลไทย → ญี่ปุ่น</span>
+                </div>
+                <div class="card-play-btn">
+                    {% if progress_map.5 %}เล่นอีกครั้ง · สูงสุด {{ progress_map.5.highest_score }}/5{% else %}เริ่มเล่นด่านนี้{% endif %}
+                </div>
                 <span class="card-deco" aria-hidden="true">極</span>
             </a>
+            {% endif %}
 
         </div>
     </div>
 
+    {% if played_vocab %}
+    <!-- ══ PLAYED VOCAB PANEL ══ -->
+    <div class="played-vocab-section">
+        <button class="vocab-toggle-btn" id="vocabToggle" onclick="toggleVocab()">
+            <div class="vocab-toggle-left">
+                <span class="vocab-toggle-icon">📖</span>
+                <div>
+                    <div class="vocab-toggle-title">ทบทวนคำศัพท์</div>
+                    <div class="vocab-toggle-sub">จากด่านที่คุณได้เล่นไป</div>
+                </div>
+            </div>
+            <div class="vocab-toggle-right">
+                <span class="vocab-count-pill">{{ played_vocab|length }} คำ</span>
+                <i class="fas fa-chevron-down vocab-chevron"></i>
+            </div>
+        </button>
+        <div class="vocab-panel" id="vocabPanel">
+            {% regroup played_vocab by level.level_number as vocab_by_level %}
+            {% for group in vocab_by_level %}
+            <div class="vocab-level-group">
+                <div class="vocab-level-header">⚔️ ด่าน {{ group.grouper }}</div>
+                {% for q in group.list %}
+                <div class="vocab-row">
+                    <div class="vocab-jp">{{ q.jp_text }}</div>
+                    <div class="vocab-info">
+                        {% if q.jp_reading %}<div class="vocab-reading">{{ q.jp_reading }}</div>{% endif %}
+                        <div class="vocab-th">{{ q.th_meaning_first }}</div>
+                        {% if q.en_meaning %}<div class="vocab-en">{{ q.en_meaning }}</div>{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        function toggleVocab() {
+            const btn = document.getElementById('vocabToggle');
+            const panel = document.getElementById('vocabPanel');
+            btn.classList.toggle('open');
+            panel.classList.toggle('open');
+        }
+    </script>
+    {% endif %}
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    (function(){
+        var MAX=7, stored=localStorage.getItem('jp_learn_hearts');
+        var h=stored!==null?parseInt(stored):MAX;
+        if(isNaN(h)||h<0)h=MAX; if(h>MAX)h=MAX;
+        var count=document.getElementById('hg-count');
+        var widget=document.getElementById('hearts-global');
+        if(count)count.textContent=h;
+        if(widget&&h===0)widget.classList.add('zero-hearts');
+    })();
+    </script>
 </body>
 </html>

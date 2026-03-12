@@ -1,9 +1,16 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import Http404
-from .models import Level, Question
+import json
 import random
 import re
+
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.http import Http404, JsonResponse
+from django.shortcuts import redirect, render, get_object_or_404
+from django.views.decorators.http import require_POST
 from pythainlp.tokenize import word_tokenize as th_tokenize
+
+from .forms import LoginForm, RegisterForm
+from .models import Level, Question, UserProgress, EncounteredWord
 
 
 # ---------------------------------------------------------------------------
@@ -53,6 +60,7 @@ def _mc_question(q, all_meanings):
     random.shuffle(choices)
     return {
         'mode': 'multiple_choice',
+        'question_id': q.id,
         'jp_text': q.jp_text,
         'jp_reading': q.jp_reading,
         'th_meaning': answer_first,
@@ -69,6 +77,7 @@ def _type_answer_question(q):
     """Free-type: user types the Thai meaning from the Japanese word."""
     return {
         'mode': 'type_answer',
+        'question_id': q.id,
         'jp_text': q.jp_text,
         'jp_reading': q.jp_reading,
         'th_meaning': q.th_meaning,
@@ -119,6 +128,7 @@ def _fill_blank_question(q, all_meanings):
 
     return {
         'mode': 'fill_blank',
+        'question_id': q.id,
         'jp_text': q.jp_text,
         'jp_reading': q.jp_reading,
         'th_meaning': q.th_meaning,
@@ -155,6 +165,7 @@ def _sort_sentence_question(q, all_meanings):
     random.shuffle(all_tiles)
     return {
         'mode': 'sort_sentence',
+        'question_id': q.id,
         'jp_text': q.jp_sentence or q.jp_text,  # full JP sentence shown at top
         'jp_reading': q.jp_reading,
         'th_meaning': q.th_meaning,
@@ -170,6 +181,107 @@ def _sort_sentence_question(q, all_meanings):
 # ---------------------------------------------------------------------------
 # Views
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Authentication Views
+# ---------------------------------------------------------------------------
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = RegisterForm()
+    return render(request, 'lessons/register.html', {'form': form})
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+    if request.method == 'POST':
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            next_url = request.POST.get('next') or request.GET.get('next') or 'home'
+            return redirect(next_url)
+    else:
+        form = LoginForm()
+    return render(request, 'lessons/login.html', {'form': form})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+
+@login_required
+def profile_view(request):
+    progress_list = (
+        UserProgress.objects
+        .filter(user=request.user)
+        .select_related('level')
+        .order_by('level__level_number')
+    )
+    total_passed = progress_list.filter(is_passed=True).count()
+    return render(request, 'lessons/profile.html', {
+        'progress_list': progress_list,
+        'total_passed': total_passed,
+    })
+
+
+@require_POST
+def save_progress(request):
+    """AJAX endpoint called by play.js when a level is completed."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'skip'})
+    try:
+        data = json.loads(request.body)
+        level_id = int(data['level_id'])
+        score = int(data.get('score', 0))
+        total = int(data.get('total', 5))
+        question_ids = [int(x) for x in data.get('question_ids', []) if str(x).isdigit()]
+    except (KeyError, ValueError, json.JSONDecodeError):
+        return JsonResponse({'status': 'error'}, status=400)
+
+    is_passed = score >= (total * 0.6)
+    level = get_object_or_404(Level, pk=level_id)
+    progress, _ = UserProgress.objects.get_or_create(user=request.user, level=level)
+    if is_passed:
+        progress.is_passed = True
+    if score > progress.highest_score:
+        progress.highest_score = score
+    progress.save()
+
+    # Save which specific questions were encountered during this session
+    if question_ids:
+        valid_qs = Question.objects.filter(pk__in=question_ids, level=level)
+        EncounteredWord.objects.bulk_create(
+            [EncounteredWord(user=request.user, question=q) for q in valid_qs],
+            ignore_conflicts=True,
+        )
+
+    return JsonResponse({'status': 'ok', 'is_passed': progress.is_passed})
+
+
+@require_POST
+def reset_progress(request):
+    """AJAX endpoint: deletes all UserProgress when hearts run out.
+    EncounteredWord (ทบทวนคำศัพท์) is intentionally kept intact."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'skip'})
+    UserProgress.objects.filter(user=request.user).delete()
+    return JsonResponse({'status': 'ok'})
+
+
+# ---------------------------------------------------------------------------
+# Main Views
+# ---------------------------------------------------------------------------
+
 def home(request):
     """Landing page with Vocabulary Bank and Start Testing buttons."""
     return render(request, 'lessons/home.html')
@@ -197,7 +309,51 @@ def vocab_bank(request):
 def play_home(request):
     """Level-selection screen for the game (shows 5 game levels)."""
     levels = Level.objects.all().order_by('level_number')
-    return render(request, 'lessons/play_home.html', {'levels': levels})
+    progress_map = {}
+    if request.user.is_authenticated:
+        for p in UserProgress.objects.filter(user=request.user).select_related('level'):
+            progress_map[p.level_id] = {
+                'is_passed': p.is_passed,
+                'highest_score': p.highest_score,
+            }
+
+    # locked_levels: set of level_numbers that cannot be played yet.
+    # Level 1 is always open. Level N requires passing Level N-1.
+    # Locking applies to authenticated users only (guests can't save progress).
+    level_num_to_id = {lv.level_number: lv.id for lv in levels}
+    locked_levels = set()
+    if request.user.is_authenticated:
+        for lv in levels:
+            if lv.level_number == 1:
+                continue
+            prev_id = level_num_to_id.get(lv.level_number - 1)
+            prev_passed = (
+                prev_id is not None
+                and progress_map.get(prev_id, {}).get('is_passed', False)
+            )
+            if not prev_passed:
+                locked_levels.add(lv.level_number)
+
+    # Vocab from specific questions the user has actually encountered during sessions
+    played_vocab = []
+    if request.user.is_authenticated:
+        encountered = (
+            EncounteredWord.objects
+            .filter(user=request.user)
+            .select_related('question', 'question__level')
+            .order_by('question__level__level_number', 'question__jp_text')
+        )
+        for ew in encountered:
+            q = ew.question
+            q.th_meaning_first = q.th_meaning.split(',')[0].strip() if q.th_meaning else ''
+            played_vocab.append(q)
+
+    return render(request, 'lessons/play_home.html', {
+        'levels': levels,
+        'progress_map': progress_map,
+        'locked_levels': locked_levels,
+        'played_vocab': played_vocab,
+    })
 
 
 def play_level(request, level_id):
@@ -209,6 +365,17 @@ def play_level(request, level_id):
     Level 4:     fill_blank (all 5)
     Level 5:     sort_sentence (all 5)
     """
+    # Gate: authenticated users must pass Level N-1 before accessing Level N.
+    # Guest users are not gated (they can't save progress anyway).
+    if level_id > 1 and request.user.is_authenticated:
+        try:
+            prev_level = Level.objects.get(level_number=level_id - 1)
+            prog = UserProgress.objects.filter(user=request.user, level=prev_level).first()
+            if not (prog and prog.is_passed):
+                return redirect('play_home')
+        except Level.DoesNotExist:
+            pass
+
     level = get_object_or_404(Level, level_number=level_id)
 
     # Separate word-type and sentence-type question pools

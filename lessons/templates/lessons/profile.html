@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JP Learn · โปรไฟล์</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+Thai:wght@400;600;700&family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:      #f4f7fa;
+            --surface: #ffffff;
+            --blue:    #1cb0f6;
+            --blue-d:  #0d80bd;
+            --green:   #58cc02;
+            --green-d: #318500;
+            --gold:    #ffc800;
+            --text:    #1e293b;
+            --muted:   #64748b;
+            --border:  #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        /* ── Header ── */
+        .page-header {
+            background: linear-gradient(135deg, #1cb0f6 0%, #0d92d6 100%);
+            color: white;
+            padding: 3rem 2rem 7rem;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .header-deco {
+            position: absolute;
+            right: -20px; bottom: -40px;
+            font-size: 16rem;
+            font-family: 'Noto Sans JP', sans-serif;
+            opacity: 0.07;
+            pointer-events: none;
+            line-height: 1;
+        }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: rgba(255,255,255,0.9); text-decoration: none;
+            font-weight: 600; font-size: 1rem;
+            padding: 10px 20px; border-radius: 50px;
+            background: rgba(255,255,255,0.15);
+            transition: 0.2s; backdrop-filter: blur(4px);
+            position: absolute; top: 25px; left: 30px;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.3); color: white; }
+
+        /* ── Avatar ── */
+        .avatar-ring {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            border: 4px solid rgba(255,255,255,0.5);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+        }
+        .profile-name {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .profile-sub {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        /* ── Content wrap ── */
+        .content-wrap {
+            max-width: 800px;
+            margin: -4rem auto 4rem;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ── Stat summary cards ── */
+        .stats-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.8rem;
+        }
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 0 #dde3ea, 0 8px 20px rgba(0,0,0,0.06);
+        }
+        .stat-num {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+        .stat-card.blue .stat-num  { color: var(--blue); }
+        .stat-card.green .stat-num { color: var(--green); }
+        .stat-card.gold .stat-num  { color: var(--gold); }
+
+        /* ── Progress section ── */
+        .section-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .level-row {
+            background: white;
+            border-radius: 18px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 0.9rem;
+            box-shadow: 0 3px 0 #dde3ea, 0 6px 15px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .level-icon {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+        .lv1 { background: linear-gradient(135deg,#35bbf8,#0d92d6); }
+        .lv2 { background: linear-gradient(135deg,#ffab2e,#df7f00); }
+        .lv3 { background: linear-gradient(135deg,#ff6b6b,#d33030); }
+        .lv4 { background: linear-gradient(135deg,#b06fd6,#7d3f9b); }
+        .lv5 { background: linear-gradient(135deg,#6bd601,#3fa800); }
+
+        .level-info { flex: 1; }
+        .level-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        .level-sub {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .level-score-wrap { text-align: right; }
+        .level-score {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .level-score.passed { color: var(--green); }
+        .level-score.failed { color: #94a3b8; }
+        .level-score-sub { font-size: 0.8rem; color: var(--muted); }
+
+        .badge-passed {
+            background: #d7ffb8;
+            color: var(--green-d);
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .badge-not-played {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* ── Logout button ── */
+        .btn-logout {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 2rem auto 0;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            color: #e53e3e;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-logout:hover {
+            background: #fff5f5;
+            border-color: #fc8181;
+        }
+
+        @media (max-width: 600px) {
+            .stats-row { flex-direction: column; }
+            .back-btn { position: relative; top: 0; left: 0; margin-bottom: 1.5rem; display: inline-flex; }
+            .page-header { text-align: left; padding: 2rem 1.5rem 6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-header">
+        <span class="header-deco" aria-hidden="true">人</span>
+        <a href="{% url 'home' %}" class="back-btn"><i class="fas fa-arrow-left"></i> กลับหน้าหลัก</a>
+        <div class="avatar-ring">{{ user.username|slice:":1"|upper }}</div>
+        <h1 class="profile-name">{{ user.username }}</h1>
+    </div>
+
+    <div class="content-wrap">
+
+        <!-- Stats Summary -->
+        <div class="stats-row">
+            <div class="stat-card blue">
+                <div class="stat-num">5</div>
+                <div class="stat-label">ด่านทั้งหมด</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-num">{{ total_passed }}</div>
+                <div class="stat-label">ด่านที่ผ่านแล้ว</div>
+            </div>
+            <div class="stat-card gold">
+                <div class="stat-num">
+                    {% with best=0 %}
+                    {% for p in progress_list %}{% if p.highest_score > best %}{{ p.highest_score }}{% endif %}{% endfor %}
+                    {% if not progress_list %}0{% endif %}
+                    {% endwith %}
+                </div>
+                <div class="stat-label">คะแนนสูงสุด</div>
+            </div>
+        </div>
+
+        <!-- Level Progress -->
+        <h2 class="section-title">ความก้าวหน้าในแต่ละด่าน</h2>
+
+        {% for lv_num in "12345" %}
+        {% with lv=lv_num|add:"0" %}
+        {% for p in progress_list %}{% if p.level.level_number == forloop.parentloop.counter %}
+        <!-- played -->
+        <div class="level-row">
+            <div class="level-icon lv{{ p.level.level_number }}">{{ p.level.level_number }}</div>
+            <div class="level-info">
+                <div class="level-name">ด่าน {{ p.level.level_number }} — {{ p.level.title }}</div>
+                <div class="level-sub">
+                    {% if p.is_passed %}
+                        <span class="badge-passed">✅ ผ่านแล้ว</span>
+                    {% else %}
+                        <span class="badge-not-played">ยังไม่ผ่าน</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="level-score-wrap">
+                <div class="level-score {% if p.is_passed %}passed{% else %}failed{% endif %}">
+                    {{ p.highest_score }}/5
+                </div>
+                <div class="level-score-sub">คะแนนสูงสุด</div>
+            </div>
+        </div>
+        {% endif %}{% endfor %}
+        {% endwith %}
+        {% endfor %}
+
+        {% comment %}Show levels never played{% endcomment %}
+        {% with played_ids=progress_list|length %}
+        {% if played_ids == 0 %}
+            <!-- No progress at all -->
+            {% for n in "12345" %}
+            <div class="level-row" style="opacity:0.5;">
+                <div class="level-icon lv{{ forloop.counter }}">{{ forloop.counter }}</div>
+                <div class="level-info">
+                    <div class="level-name">ด่าน {{ forloop.counter }}</div>
+                    <div class="level-sub"><span class="badge-not-played">ยังไม่ได้เล่น</span></div>
+                </div>
+                <div class="level-score-wrap">
+                    <div class="level-score failed">—</div>
+                    <div class="level-score-sub">คะแนนสูงสุด</div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- Logout -->
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

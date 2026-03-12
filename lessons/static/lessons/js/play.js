@@ -12,6 +12,7 @@ import { hideFeedback, initFeedbackEvents }                  from './play-feedba
 import { renderMC, renderTypeAnswer, renderFillBlank, renderSort } from './play-renderers.js';
 import { checkMC, checkTyped, checkFillBlank, checkSort }  from './play-checkers.js';
 import { handleCorrect, handleWrong }                       from './play-markers.js';
+import { updateHeartsDisplay, resetHearts, hideGameOver }  from './play-hearts.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -33,6 +34,31 @@ document.addEventListener('DOMContentLoaded', function () {
     ───────────────────────────────────────────────────────── */
     initDom();
     initFeedbackEvents();
+
+    // Init hearts display
+    updateHeartsDisplay();
+
+    // Wire refill-hearts button (resets all progress → back to Level 1 only)
+    const btnRefill = document.getElementById('btn-refill-hearts');
+    if (btnRefill) {
+        btnRefill.addEventListener('click', async function () {
+            btnRefill.disabled = true;
+            btnRefill.textContent = '⏳ กำลังรีเซ็ต...';
+            if (window.USER_AUTHENTICATED && window.RESET_PROGRESS_URL) {
+                try {
+                    await fetch(window.RESET_PROGRESS_URL, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': window.CSRF_TOKEN,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                } catch (e) { /* continue even on network error */ }
+            }
+            resetHearts();
+            window.location.href = window.PLAY_HOME_URL || '/play/';
+        });
+    }
 
     /* ─────────────────────────────────────────────────────────
        7.  LOAD QUESTION
@@ -173,6 +199,25 @@ document.addEventListener('DOMContentLoaded', function () {
             if (D.btnRetryGame)  D.btnRetryGame.style.display  = 'block';
             if (D.btnFinishGame) D.btnFinishGame.style.display = 'block';
         }
+
+        // Save progress to server (only if user is logged in)
+        // Store promise so the finish button can wait for it before navigating.
+        window._savePromise = (window.USER_AUTHENTICATED && window.SAVE_PROGRESS_URL)
+            ? fetch(window.SAVE_PROGRESS_URL, {
+                method: 'POST',
+                keepalive: true,   // complete even if page navigates away
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.CSRF_TOKEN,
+                },
+                body: JSON.stringify({
+                    level_id: S.levelId,
+                    score: S.score,
+                    total: total,
+                    question_ids: S.questions.map(function(q) { return q.question_id; }).filter(Boolean),
+                }),
+              }).catch(() => {})
+            : Promise.resolve();
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -187,6 +232,19 @@ document.addEventListener('DOMContentLoaded', function () {
         D.btnRetryGame.addEventListener('click', function (e) {
             e.preventDefault();
             location.reload();
+        });
+    }
+
+    // Finish — wait for the save AJAX to complete before navigating away,
+    // so progress is always recorded even on fast connections.
+    if (D.btnFinishGame) {
+        D.btnFinishGame.addEventListener('click', function (e) {
+            e.preventDefault();
+            const dest = D.btnFinishGame.href;
+            const save = window._savePromise || Promise.resolve();
+            // Wait up to 2 s for save, then navigate regardless
+            Promise.race([save, new Promise(r => setTimeout(r, 2000))])
+                .then(() => { window.location.href = dest; });
         });
     }
 

@@ -47,3 +47,14 @@ class UserProgress(models.Model):
 
     def __str__(self):
         return f"ผู้เล่น: {self.user.username} | Lv.{self.level.level_number} | ผ่าน: {self.is_passed}"
+
+# 4. ตาราง EncounteredWord (เก็บคำที่ user เคยเจอระหว่างทดสอบ)
+class EncounteredWord(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'question')
+
+    def __str__(self):
+        return f"{self.user.username} → {self.question.jp_text}"

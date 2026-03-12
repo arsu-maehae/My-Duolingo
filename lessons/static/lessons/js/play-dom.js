@@ -16,6 +16,8 @@ export function initDom() {
     D.progressBar   = document.getElementById('progress-bar');
     D.progressText  = document.getElementById('progress-text');
     D.btnClosePage  = document.getElementById('btn-close-page');
+    D.heartsEl      = document.getElementById('hearts-display');
+    D.gameOverScreen = document.getElementById('game-over-screen');
 
     // Header elements inside card
     D.modeLabel     = document.getElementById('mode-label');

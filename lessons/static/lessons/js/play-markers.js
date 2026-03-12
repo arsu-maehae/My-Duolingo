@@ -6,6 +6,7 @@ import { S } from './play-state.js';
 import { D } from './play-dom.js';
 import { clean, setCheckEnabled } from './play-helpers.js';
 import { showFeedback } from './play-feedback.js';
+import { loseHeart, animateLostHeart, showGameOver } from './play-hearts.js';
 
 /* ─────────────────────────────────────────────────────────
    11.  VISUAL MARKING  (correct / wrong highlights)
@@ -172,5 +173,12 @@ export function handleWrong(q) {
 
         D.btnCheck.style.display = 'none';
         D.btnNext.style.display  = 'block';
+
+        // Lose a heart
+        const remaining = loseHeart();
+        animateLostHeart();
+        if (remaining <= 0) {
+            setTimeout(showGameOver, 900);
+        }
     }
 }
